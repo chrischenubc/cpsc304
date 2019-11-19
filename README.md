@@ -1,1 +1,1 @@
-# cpsc304 60
+# cpsc304 Group 60
