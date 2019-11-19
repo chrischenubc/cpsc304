@@ -90,10 +90,10 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
     		// simplified output formatting; truncation may occur
     		System.out.printf("%-10.10s", model.getId());
     		System.out.printf("%-20.20s", model.getName());
-    		if (model.getAddress() == null) {
+    		if (model.getLocation() == null) {
     			System.out.printf("%-20.20s", " ");
     		} else {
-    			System.out.printf("%-20.20s", model.getAddress());
+    			System.out.printf("%-20.20s", model.getLocation());
     		}
     		System.out.printf("%-15.15s", model.getCity());
     		if (model.getPhoneNumber() == 0) {

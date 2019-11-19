@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import ca.ubc.cs304.model.BranchModel;
+import ca.ubc.cs304.model.VehicleType;
 
 /**
  * This class handles all database related transactions
@@ -41,6 +42,33 @@ public class DatabaseConnectionHandler {
 		}
 	}
 
+	// the following methods are SQL operations used for our projects
+	public void rentVehicle() {
+
+	};
+	public void returnVehicle() {
+
+	};
+	public void generateReport() {
+
+	};
+
+	public void viewAvaiableVehicles(VehicleType type, String location, String timeStart, String timeEnd) {
+
+	};
+
+	public void makeReservation() {
+
+	};
+
+	public void viewAllTables() {
+
+	}
+
+	public void insertIntoTable(String table, ) {
+
+	}
+
 	public void deleteBranch(int branchId) {
 		try {
 			PreparedStatement ps = connection.prepareStatement("DELETE FROM branch WHERE branch_id = ?");
@@ -65,7 +93,7 @@ public class DatabaseConnectionHandler {
 			PreparedStatement ps = connection.prepareStatement("INSERT INTO branch VALUES (?,?,?,?,?)");
 			ps.setInt(1, model.getId());
 			ps.setString(2, model.getName());
-			ps.setString(3, model.getAddress());
+			ps.setString(3, model.getLocation());
 			ps.setString(4, model.getCity());
 			if (model.getPhoneNumber() == 0) {
 				ps.setNull(5, java.sql.Types.INTEGER);
@@ -138,6 +166,9 @@ public class DatabaseConnectionHandler {
 			rollbackConnection();
 		}	
 	}
+
+
+
 	
 	public boolean login(String username, String password) {
 		try {
