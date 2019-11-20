@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 
 import ca.ubc.cs304.model.BranchModel;
 import ca.ubc.cs304.model.VehicleType;
@@ -61,13 +62,24 @@ public class DatabaseConnectionHandler {
 
 	};
 
-	public void viewAllTables() {
-
+	//Viewing all tables in the database
+	public List<String> viewAllTables() {
+		List<String> allTables = new ArrayList<>();
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT table_name FROM user_tables");
+			while (rs.next()) {
+				allTables.add(rs.getString("TABLE_NAME"));
+			}
+		} catch (SQLException e) {
+			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+		}
+		return allTables;
 	}
 
-	public void insertIntoTable(String table, ) {
-
-	}
+//	public void insertIntoTable(String table, ) {
+//
+//	}
 
 	public void deleteBranch(int branchId) {
 		try {

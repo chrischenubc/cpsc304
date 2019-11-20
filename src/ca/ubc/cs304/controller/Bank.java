@@ -5,6 +5,7 @@ import ca.ubc.cs304.delegates.LoginWindowDelegate;
 import ca.ubc.cs304.delegates.TerminalTransactionsDelegate;
 import ca.ubc.cs304.model.BranchModel;
 import ca.ubc.cs304.ui.LoginWindow;
+import ca.ubc.cs304.ui.MainWindow;
 import ca.ubc.cs304.ui.TerminalTransactions;
 
 /**
@@ -13,6 +14,7 @@ import ca.ubc.cs304.ui.TerminalTransactions;
 public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
 	private DatabaseConnectionHandler dbHandler = null;
 	private LoginWindow loginWindow = null;
+	private MainWindow mainWindow = null;
 
 	public Bank() {
 		dbHandler = new DatabaseConnectionHandler();
@@ -21,6 +23,7 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
 	private void start() {
 		loginWindow = new LoginWindow();
 		loginWindow.showFrame(this);
+
 	}
 	
 	/**
@@ -35,8 +38,10 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
 			// Once connected, remove login window and start text transaction flow
 			loginWindow.dispose();
 
-			TerminalTransactions transaction = new TerminalTransactions();
-			transaction.showMainMenu(this);
+
+//			TerminalTransactions transaction = new TerminalTransactions();
+//			transaction.showMainMenu(this);
+			this.showBranch();
 		} else {
 			loginWindow.handleLoginFailed();
 
@@ -47,6 +52,8 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
 			}
 		}
 	}
+
+
 	
 	/**
 	 * TermainalTransactionsDelegate Implementation
@@ -125,5 +132,6 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
 	public static void main(String args[]) {
 		Bank bank = new Bank();
 		bank.start();
+
 	}
 }
