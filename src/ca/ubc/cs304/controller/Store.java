@@ -7,9 +7,10 @@ import ca.ubc.cs304.ui.LoginWindow;
 import ca.ubc.cs304.ui.MainWindow;
 import ca.ubc.cs304.ui.TerminalTransactions;
 
+import java.sql.SQLException;
 import java.util.List;
 
-public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, StoreTransactionsDelegate, MainWindowDelegate {
+public   class Store implements LoginWindowDelegate, ClientTransactionsDelegate, StoreTransactionsDelegate, MainWindowDelegate {
     private DatabaseConnectionHandler dbHandler = null;
     private LoginWindow loginWindow = null;
     private MainWindow mainWindow = null;
@@ -62,14 +63,8 @@ public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, S
         }
     }
 
-    public String viewAllTables() {
-        List<String> allTables = dbHandler.viewAllTables();
-        String res = "All Tables" + NEWLINE;
-        for (String table: allTables) {
-            System.out.println(table);
-            res += table += NEWLINE;
-        }
-        return res;
+    public List<String[]> viewAllTables() throws SQLException {
+        return dbHandler.viewAllTables();
     }
 
     @Override
