@@ -56,9 +56,15 @@ public class MainWindow extends JFrame{
 
         //Creating the panel at bottom and adding components
         JPanel panel = new JPanel(); // the panel is not visible in output
-        JLabel label = new JLabel("Enter Text");
-        JTextField tf = new JTextField(10); // accepts upto 10 characters
+        JLabel label = new JLabel("Enter Your SQL");
+        JTextField tf = new JTextField(50); // accepts upto 10 characters
         JButton send = new JButton("Send");
+        send.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String text = tf.getText();
+            }
+        });
         JButton reset = new JButton("Reset");
         panel.add(label); // Components Added using Flow Layout
         panel.add(label); // Components Added using Flow Layout
@@ -85,6 +91,11 @@ public class MainWindow extends JFrame{
         @Override
         public String viewAllTables() {
             return "Fake delegate testing string";
+        }
+
+        @Override
+        public String executeSelect(String sql) {
+            return null;
         }
     }
 

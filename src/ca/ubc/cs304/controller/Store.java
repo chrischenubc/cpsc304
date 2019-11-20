@@ -22,7 +22,7 @@ public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, S
     private void start() {
 //        loginWindow = new LoginWindow();
 //        loginWindow.showFrame(this);
-          this.testLogin("Your Oracle db name", "Your Oracle db passwd");
+          this.testLogin("ora_keith520", "a11691152");
     }
 
     /**
@@ -64,7 +64,7 @@ public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, S
 
     public String viewAllTables() {
         List<String> allTables = dbHandler.viewAllTables();
-        String res = new String();
+        String res = "All Tables" + NEWLINE;
         for (String table: allTables) {
             System.out.println(table);
             res += table += NEWLINE;
@@ -72,13 +72,10 @@ public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, S
         return res;
     }
 
-
-
-
-
-
-
-
+    @Override
+    public String executeSelect(String sql) {
+        return dbHandler.executeSelect(sql);
+    }
 
     /**
      * TerminalTransactionsDelegate Implementation

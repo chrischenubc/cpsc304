@@ -44,6 +44,23 @@ public class DatabaseConnectionHandler {
 	}
 
 	// the following methods are SQL operations used for our projects
+	public String executeSelect(String sql) {
+		String res = new String();
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				res.concat(rs.getString("TABLE_NAME"));
+			}
+		} catch (SQLException e) {
+			res = e.getMessage();
+			System.out.println(EXCEPTION_TAG + " " + res);
+			return res;
+		}
+		return res;
+	}
+
+
 	public void rentVehicle() {
 
 	};
