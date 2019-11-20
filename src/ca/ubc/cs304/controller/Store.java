@@ -1,25 +1,28 @@
 package ca.ubc.cs304.controller;
 
 import ca.ubc.cs304.database.DatabaseConnectionHandler;
-import ca.ubc.cs304.delegates.ClientTransactionsDelegate;
-import ca.ubc.cs304.delegates.LoginWindowDelegate;
-import ca.ubc.cs304.delegates.StoreTransactionsDelegate;
-import ca.ubc.cs304.delegates.TerminalTransactionsDelegate;
+import ca.ubc.cs304.delegates.*;
 import ca.ubc.cs304.model.BranchModel;
 import ca.ubc.cs304.ui.LoginWindow;
+import ca.ubc.cs304.ui.MainWindow;
 import ca.ubc.cs304.ui.TerminalTransactions;
 
-public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, StoreTransactionsDelegate {
+import java.util.List;
+
+public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, StoreTransactionsDelegate, MainWindowDelegate {
     private DatabaseConnectionHandler dbHandler = null;
     private LoginWindow loginWindow = null;
+    private MainWindow mainWindow = null;
+    private final static String NEWLINE = "\n";
 
     public Store() {
         dbHandler = new DatabaseConnectionHandler();
     }
 
     private void start() {
-        loginWindow = new LoginWindow();
-        loginWindow.showFrame(this);
+//        loginWindow = new LoginWindow();
+//        loginWindow.showFrame(this);
+          this.testLogin("Your Oracle db name", "Your Oracle db passwd");
     }
 
     /**
@@ -34,8 +37,9 @@ public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, S
             // Once connected, remove login window and start text transaction flow
             loginWindow.dispose();
 
-            TerminalTransactions transaction = new TerminalTransactions();
-            transaction.showMainMenu(this);
+            //Temporary remove to the console prompt
+//            TerminalTransactions transaction = new TerminalTransactions();
+//            transaction.showMainMenu(this);
         } else {
             loginWindow.handleLoginFailed();
 
@@ -47,63 +51,34 @@ public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, S
         }
     }
 
-    /**
-     * TermainalTransactionsDelegate Implementation
-     *
-     * Insert a branch with the given info
-     */
-    public void insertBranch(BranchModel model) {
-        dbHandler.insertBranch(model);
-    }
+    public void testLogin(String username, String password) {
+        boolean didConnect = dbHandler.login(username, password);
 
-    /**
-     * TermainalTransactionsDelegate Implementation
-     *
-     * Delete branch with given branch ID.
-     */
-    public void deleteBranch(int branchId) {
-        dbHandler.deleteBranch(branchId);
-    }
-
-    /**
-     * TermainalTransactionsDelegate Implementation
-     *
-     * Update the branch name for a specific ID
-     */
-
-    public void updateBranch(int branchId, String name) {
-        dbHandler.updateBranch(branchId, name);
-    }
-
-    /**
-     * TermainalTransactionsDelegate Implementation
-     *
-     * Displays information about varies bank branches.
-     */
-    public void showBranch() {
-        BranchModel[] models = dbHandler.getBranchInfo();
-
-        for (int i = 0; i < models.length; i++) {
-            BranchModel model = models[i];
-
-            // simplified output formatting; truncation may occur
-            System.out.printf("%-10.10s", model.getId());
-            System.out.printf("%-20.20s", model.getName());
-            if (model.getLocation() == null) {
-                System.out.printf("%-20.20s", " ");
-            } else {
-                System.out.printf("%-20.20s", model.getLocation());
-            }
-            System.out.printf("%-15.15s", model.getCity());
-            if (model.getPhoneNumber() == 0) {
-                System.out.printf("%-15.15s", " ");
-            } else {
-                System.out.printf("%-15.15s", model.getPhoneNumber());
-            }
-
-            System.out.println();
+        if (didConnect) {
+            mainWindow = new MainWindow();
+            mainWindow.showFrame(this);
+        } else {
+            System.out.println("Fail to connect to DB");
         }
     }
+
+    public String viewAllTables() {
+        List<String> allTables = dbHandler.viewAllTables();
+        String res = new String();
+        for (String table: allTables) {
+            System.out.println(table);
+            res += table += NEWLINE;
+        }
+        return res;
+    }
+
+
+
+
+
+
+
+
 
     /**
      * TerminalTransactionsDelegate Implementation
