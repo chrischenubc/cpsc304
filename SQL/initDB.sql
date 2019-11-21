@@ -1,96 +1,146 @@
-drop table Branch cascade constraints;
-drop table Customer cascade constraints;
-drop table Rent cascade constraints;
-drop table Reservation cascade constraints;
-drop table Vehicle cascade constraints;
-drop table VehicleType cascade constraints;
-drop table Returns cascade constraints;
+-------------------------------------------------------------------------------
+-- CPSC304 Introduction to Relational Databases
+-- Project Part 3: Implementation
+-- Group 60 (Ziyu Xie, Yu Chen, and Annie Kim)
+--
+-- initDB.sql
+-- creates tables for use
+-------------------------------------------------------------------------------
+SET SQLBLANKLINES ON
 
-create table Branch(
-                       location varchar2(30),
-                       city varchar2(30),
-                       primary key(location,city)
+-- Drop existing tables
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Branches CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE VehicleTypes CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Vehicles CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Customers CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Reservations CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Rentals CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Returns CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN
+        IF SQLCODE != -942 THEN
+            RAISE;
+        END IF;
+END;
+/
+
+-- Add each table
+CREATE TABLE Branches(
+    location VARCHAR2(255),
+    city VARCHAR2(255),
+
+    PRIMARY KEY(location, city)
 );
 
-create table VehicleType(
-                            vtname varchar2(30),
-                            features varchar2(60),
-                            wrate varchar2(30),
-                            drate varchar2(30),
-                            hrate varchar2(30),
-                            wirate varchar2(30),
-                            dirate varchar2(30),
-                            hirate varchar2(30),
-                            krate varchar2(30),
-                            primary key(vtname)
+CREATE TABLE VehicleTypes(
+    vtname VARCHAR2(255),
+    features VARCHAR2(255),
+    wrate NUMBER(9,2),
+    drate NUMBER(9,2),
+    hrate NUMBER(9,2),
+    wirate NUMBER(9,2),
+    dirate NUMBER(9,2),
+    hirate NUMBER(9,2),
+    krate NUMBER(9,2),
+
+    PRIMARY KEY(vtname)
 );
 
-create table Vehicle(
-                        vid number(9,0),
-                        vlicense varchar2(30),
-                        make varchar2(30),
-                        model varchar2(30),
-                        year varchar2(4),
-                        color varchar2(30),
-                        odometer number(9,0),
-                        status varchar2(30),
-                        vtname varchar2(30),
-                        location varchar2(30),
-                        city varchar2(30),
+CREATE TABLE Vehicles(
+    -- vid has been removed as a vehicle is identified by its plate number
+    vlicense VARCHAR2(255),
+    make VARCHAR2(255),
+    model VARCHAR2(255),
+    year VARCHAR2(255),
+    color VARCHAR2(255),
+    odometer NUMBER(9,0),
+    status VARCHAR2(255),
+    vtname VARCHAR2(255),
+    location VARCHAR2(255),
+    city VARCHAR2(255),
 
-                        primary key(vid),
-                        foreign key(location, city) references Branch,
-                        foreign key(vtname) references VehicleType
+    PRIMARY KEY(vlicense),
+
+    FOREIGN KEY(location, city)
+        REFERENCES Branches
+        ON DELETE CASCADE,
+    FOREIGN KEY(vtname)
+        REFERENCES VehicleTypes
+        ON DELETE CASCADE
 );
 
-create table Customer(
-                         cellphone varchar2(30) primary key,
-                         name varchar2(30),
-                         address varchar2(50),
-                         dlicense number(8,0)
+CREATE TABLE Customers(
+    cellphone VARCHAR2(255),
+    name    VARCHAR2(255),
+    address VARCHAR2(255),
+    dlicense VARCHAR2(255),
+
+    PRIMARY KEY(dlicense)
 );
 
-create table Reservation(
-                            confNo number(10,0) primary key,
-                            vtname varchar2(30),
-                            cellphone varchar2(30),
-                            fromDate Date,
-                            fromTime Date,
-                            toDate Date,
-                            toTime Date,
+CREATE TABLE Reservations(
+    confNo NUMBER(9,0),
+    vtname VARCHAR2(255),
+    cellphone VARCHAR2(255),
+    fromDate DATE,
+    fromTime TIMESTAMP,
+    toDate DATE,
+    toTime TIMESTAMP,
 
-                            foreign key(vtname) references VehicleType,
-                            foreign key(cellphone) references Customer
+    PRIMARY KEY(confNo),
+
+    FOREIGN KEY(vtname)
+        REFERENCES VehicleTypes
+        ON DELETE CASCADE,
+    FOREIGN KEY(cellphone)
+        REFERENCES Customers
+        ON DELETE CASCADE
 );
 
-create table Rent(
-                     rid number(9,0) primary key,
-                     vid number(9,0),
-                     cellphone varchar2(30),
-                     fromDate Date,
-                     fromTime Date,
-                     toDate Date,
-                     toTime Date,
-                     odometer number(9,0),
-                     cardName varchar2(30),
-                     cardNo varchar2(30),
-                     ExpDate Date,
-                     confNo number(10,0)  NOT NULL,
-                     foreign key(vid) references Vehicle,
-                     foreign key(cellphone) references Customer,
-                     foreign key(confNo) references Reservation
+CREATE TABLE Rentals(
+    rid NUMBER(9,0),
+    vlicense VARCHAR2(255),
+    cellphone VARCHAR2(255),
+    fromDate DATE,
+    fromTime TIMESTAMP,
+    toDate DATE,
+    toTime TIMESTAMP,
+    odometer NUMBER(9,0),
+    cardName VARCHAR2(255),
+    cardNo VARCHAR2(255),
+    ExpDate Date,
+    confNo NUMBER(9,0),
+
+    PRIMARY KEY(rid),
+
+    FOREIGN KEY(vlicense)
+        REFERENCES Vehicles
+        ON DELETE CASCADE,
+    FOREIGN KEY(cellphone)
+        REFERENCES Customers
+        ON DELETE CASCADE,
+    FOREIGN KEY(confNo)
+        REFERENCES Reservations
+        ON DELETE CASCADE
 );
 
-create table Returns(
-                        rid number(9,0) primary key,
-                        returnDate Date,
-                        odometer number,
-                        fulltank varchar2(30),
-                        value number,
-                        foreign key(rid) references Rent
+CREATE TABLE Returns(
+    rid NUMBER(9,0),
+    returnDate DATE,
+    returnTime TIMESTAMP,
+    odometer NUMBER(9,0),
+    fullTank NUMBER(1),
+    value NUMBER(9,2),
+
+    PRIMARY KEY(rid),
+
+    FOREIGN KEY(rid)
+        REFERENCES Rentals
 );
 
 
+/*
 insert into Branch values('3274  Silver St','Vancouver');
 insert into Branch values('3493  Reserve St','New York');
 insert into Branch values('1579  Robson St','Seattle');
@@ -135,3 +185,4 @@ insert into Vehicle values(060479703,'V0701I','Nissan','Pathfinder','2019','Blac
 insert into Customer values ('7467576546', 'Kevin', '4992  Walsh Street, Thunder Bay', 99683944);
 insert into Customer values ('8867650280', 'Nancy', '179  Bay Street, Toronto', 80698940);
 insert into Customer values ('648987580', 'Joan D Janes', '4196  King George Hwy, Surrey', 66205611);
+*/
