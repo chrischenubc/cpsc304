@@ -1,110 +1,207 @@
-drop table Branch cascade constraints;
-drop table Customer cascade constraints;
-drop table Rent cascade constraints;
-drop table Reservation cascade constraints;
-drop table Vehicle cascade constraints;
-drop table VehicleType cascade constraints;
-drop table Returns cascade constraints;
+-------------------------------------------------------------------------------
+-- CPSC304 Introduction to Relational Databases
+-- Project Part 3: Implementation
+-- Group 60 (Ziyu Xie, Yu Chen, and Annie Kim)
+--
+-- initDB.sql
+-- creates tables for use
+-------------------------------------------------------------------------------
+SET SQLBLANKLINES ON
 
-create table Branch(
-                       location varchar2(30),
-                       city varchar2(30),
-                       primary key(location,city)
+-- Drop existing tables
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Branches CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE VehicleTypes CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Vehicles CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Customers CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Reservations CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Rentals CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Returns CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN
+        IF SQLCODE != -942 THEN
+            RAISE;
+        END IF;
+END;
+/
+
+-- Add each table
+CREATE TABLE Branches(
+    location VARCHAR2(255),
+    city VARCHAR2(255),
+
+    PRIMARY KEY(location, city)
 );
 
-create table VehicleType(
-                            vtname varchar2(30),
-                            features varchar2(60),
-                            wrate varchar2(30),
-                            drate varchar2(30),
-                            hrate varchar2(30),
-                            wirate varchar2(30),
-                            dirate varchar2(30),
-                            hirate varchar2(30),
-                            krate varchar2(30),
-                            primary key(vtname)
+CREATE TABLE VehicleTypes(
+    vtname VARCHAR2(255),
+    features VARCHAR2(255),
+    wrate NUMBER(9,2),
+    drate NUMBER(9,2),
+    hrate NUMBER(9,2),
+    krate NUMBER(9,2),
+    wirate NUMBER(9,2),
+    dirate NUMBER(9,2),
+    hirate NUMBER(9,2),
+
+    PRIMARY KEY(vtname)
 );
 
-create table Vehicle(
-                        vid number(9,0),
-                        vlicense varchar2(30),
-                        make varchar2(30),
-                        model varchar2(30),
-                        year varchar2(4),
-                        color varchar2(30),
-                        odometer number(9,0),
-                        status varchar2(30),
-                        vtname varchar2(30),
-                        location varchar2(30),
-                        city varchar2(30),
+CREATE TABLE Vehicles(
+    -- vid has been removed as a vehicle is identified by its plate number
+    vlicense VARCHAR2(255),
+    make VARCHAR2(255),
+    model VARCHAR2(255),
+    year NUMBER(4,0),
+    color VARCHAR2(255),
+    odometer NUMBER(9,0),
+    status VARCHAR2(255),
+    vtname VARCHAR2(255),
+    location VARCHAR2(255),
+    city VARCHAR2(255),
 
-                        primary key(vid),
-                        foreign key(location, city) references Branch,
-                        foreign key(vtname) references VehicleType
+    PRIMARY KEY(vlicense),
+
+    FOREIGN KEY(location, city)
+        REFERENCES Branches
+        ON DELETE CASCADE,
+    FOREIGN KEY(vtname)
+        REFERENCES VehicleTypes
+        ON DELETE CASCADE
 );
 
-create table Customer(
-                         cellphone varchar2(30) primary key,
-                         name varchar2(30),
-                         address varchar2(50),
-                         dlicense number(8,0)
+CREATE TABLE Customers(
+    cellphone VARCHAR2(255),
+    name VARCHAR2(255),
+    address VARCHAR2(255),
+    dlicense VARCHAR2(255),
+
+    PRIMARY KEY(dlicense)
 );
 
-create table Reservation(
-                            confNo number(10,0) primary key,
-                            vtname varchar2(30),
-                            cellphone varchar2(30),
-                            fromDate Date,
-                            fromTime Date,
-                            toDate Date,
-                            toTime Date,
+CREATE TABLE Reservations(
+    confNo NUMBER(9,0),
+    vtname VARCHAR2(255),
+    -- cellphone has been replaced by dlicense
+    dlicense VARCHAR2(255),
+    fromDateTime TIMESTAMP,
+    toDateTime TIMESTAMP,
 
-                            foreign key(vtname) references VehicleType,
-                            foreign key(cellphone) references Customer
+    PRIMARY KEY(confNo),
+
+    FOREIGN KEY(vtname)
+        REFERENCES VehicleTypes
+        ON DELETE CASCADE,
+    FOREIGN KEY(dlicense)
+        REFERENCES Customers
+        ON DELETE CASCADE
 );
 
-create table Rent(
-                     rid number(9,0) primary key,
-                     vid number(9,0),
-                     cellphone varchar2(30),
-                     fromDate Date,
-                     fromTime Date,
-                     toDate Date,
-                     toTime Date,
-                     odometer number(9,0),
-                     cardName varchar2(30),
-                     cardNo varchar2(30),
-                     ExpDate Date,
-                     confNo number(10,0)  NOT NULL,
-                     foreign key(vid) references Vehicle,
-                     foreign key(cellphone) references Customer,
-                     foreign key(confNo) references Reservation
+CREATE TABLE Rentals(
+    rid NUMBER(9,0),
+    vlicense VARCHAR2(255),
+    -- cellphone has been replaced by dlicense
+    dlicense VARCHAR2(255),
+    fromDateTime TIMESTAMP,
+    toDateTime TIMESTAMP,
+    odometer NUMBER(9,0),
+    cardName VARCHAR2(255),
+    cardNo VARCHAR2(255),
+    ExpDate Date,
+    confNo NUMBER(9,0),
+
+    PRIMARY KEY(rid),
+
+    FOREIGN KEY(vlicense)
+        REFERENCES Vehicles
+        ON DELETE CASCADE,
+    FOREIGN KEY(dlicense)
+        REFERENCES Customers
+        ON DELETE CASCADE,
+    FOREIGN KEY(confNo)
+        REFERENCES Reservations
+        ON DELETE CASCADE
 );
 
-create table Returns(
-                        rid number(9,0) primary key,
-                        returnDate Date,
-                        odometer number,
-                        fulltank varchar2(30),
-                        value number,
-                        foreign key(rid) references Rent
+CREATE TABLE Returns(
+    rid NUMBER(9,0),
+    returnDateTime TIMESTAMP,
+    odometer NUMBER(9,0),
+    fullTank NUMBER(1),
+    value NUMBER(9,2),
+
+    PRIMARY KEY(rid),
+
+    FOREIGN KEY(rid)
+        REFERENCES Rentals
 );
 
 
-insert into Branch values('3274  Silver St','Vancouver');
-insert into Branch values('3493  Reserve St','New York');
-insert into Branch values('1579  Robson St','Seattle');
-insert into Branch values('194  Yonge Street','Richmond');
-insert into Branch values('280  Nelson Street','Burnaby');
+-- Add tuples
+INSERT INTO Branches VALUES('180 W Georgia St', 'Vancouver');
+INSERT INTO Branches VALUES('1250 Granville St', 'Vancouver');
+INSERT INTO Branches VALUES('10376 King George Blvd', 'Surrey');
+INSERT INTO Branches VALUES('221 Thompson St', 'New York');
+INSERT INTO Branches VALUES('1601 3rd Ave', 'Seattle');
+INSERT INTO Branches VALUES('9051 Beckwith Rd', 'Richmond');
+INSERT INTO Branches VALUES('5249 Regent St', 'Burnaby');
 
-insert into VehicleType values('Economy','lightweight, and inexpensive', 600, 100, 10, 300, 50, 5, 10);
-insert into VehicleType values('Compact','small and compact', 400, 80, 8, 300, 40, 8, 8);
-insert into VehicleType values('Mid-size','mid size vehicle ideally for 4 people', 700, 120, 12, 350, 70, 12, 15);
-insert into VehicleType values('Standard',' four to five people can sit comfortably', 700, 110, 15, 300, 60, 7, 12);
-insert into VehicleType values('SUV','sport utility vehicle', 1000, 160, 25, 500, 80, 16, 14);
-insert into VehicleType values('Full-size','bigger and more spacious', 800, 140, 20, 400, 60, 12, 6);
-insert into VehicleType values('Truck','designed to carry freight or goods', 1200, 180, 30, 800, 100, 30, 15);
+--vtname, features, wrate, drate, hrate, krate, wirate, dirate, hirate
+INSERT INTO VehicleTypes VALUES('Economy', 'hourly', 181.99, 26.04, NULL, 0.20, 47.42, NULL, NULL);
+INSERT INTO VehicleTypes VALUES('Compact', 'hourly', 191.99, 27.47, NULL, 0.20, 48.79, NULL, NULL);
+INSERT INTO VehicleTypes VALUES('Mid-size', 'hourly', 201.99, 28.90, NULL, NULL, 50.16, NULL, NULL);
+INSERT INTO VehicleTypes VALUES('Standard', 'weekly', 211.99, 30.33, NULL, NULL, 51.54, NULL, NULL);
+INSERT INTO VehicleTypes VALUES('Full-size', 'weekly', 221.99, 31.76, NULL, NULL, 52.91, NULL, NULL);
+INSERT INTO VehicleTypes VALUES('SUV', 'weekly', 245.99, 35.19, NULL, NULL, 56.20, NULL, NULL);
+INSERT INTO VehicleTypes VALUES('Truck', 'weekly', 331.99, 47.50, NULL, NULL, 67.99, NULL, NULL);
 
+--vlicense, make, model, year, color, odometer, status, vtname, location, city
+INSERT INTO Vehicles VALUES('CA762X', 'Chevrolet', 'Spark', 2018, 'White', 50765, 'available', 'Economy', '5249 Regent St', 'Burnaby');
+INSERT INTO Vehicles VALUES('866MAB', 'Nissan', 'Micra', 2018, 'White', 29338, 'available', 'Economy', '180 W Georgia St', 'Vancouver');
+INSERT INTO Vehicles VALUES('EF084D', 'Hyundai', 'Accent', 2017, 'White', 52692, 'rented', 'Compact', '1250 Granville St', 'Vancouver');
+INSERT INTO Vehicles VALUES('62629C', 'Nissan', 'Versa Note', 2009, 'Blue', 168638, 'maintenance', 'Compact', '5249 Regent St', 'Burnaby');
+INSERT INTO Vehicles VALUES('CS015A', 'Toyota', 'Yaris', 2018, 'Red', 52586, 'available', 'Compact', '9051 Beckwith Rd', 'Richmond');
+INSERT INTO Vehicles VALUES('DE310T', 'Hyundai', 'Elantra', 2018, 'Red', 112, 'available', 'Mid-size', '221 Thompson St', 'New York');
+INSERT INTO Vehicles VALUES('991MKS', 'Toyota', 'Corolla', 2015, 'Red', 82924, 'maintenance', 'Mid-size', '5249 Regent St', 'Burnaby');
+INSERT INTO Vehicles VALUES('Y28613', 'Volkswagen', 'Jetta', 2016, 'Blue', 37467, 'available', 'Standard', '221 Thompson St', 'New York');
+INSERT INTO Vehicles VALUES('ML6469', 'Honda', 'Civic', 2017, 'Grey', 12811, 'rented', 'Standard', '1601 3rd Ave', 'Seattle');
+INSERT INTO Vehicles VALUES('BMO34A', 'Chevrolet', 'Impala', 2013, 'White', 63867, 'available', 'Full-size', '1601 3rd Ave', 'Seattle');
+INSERT INTO Vehicles VALUES('XNK656', 'Chevrolet', 'Malibu', 2018, 'Red', 38085, 'rented', 'Full-size', '221 Thompson St', 'New York');
+INSERT INTO Vehicles VALUES('241EKA', 'Nissan', 'Qashqai', 2015, 'White', 71611, 'rented', 'SUV', '10376 King George Blvd', 'Surrey');
+INSERT INTO Vehicles VALUES('896REN', 'Nissan', 'Rogue', 2019, 'White', 278, 'available', 'SUV', '1250 Granville St', 'Vancouver');
+INSERT INTO Vehicles VALUES('861AJP', 'Jeep', 'Grand Cherokee', 2017, 'White', 55281, 'available', 'SUV', '9051 Beckwith Rd', 'Richmond');
+INSERT INTO Vehicles VALUES('329RBL', 'Ford', 'F150 Super Crew', 2016, 'Black', 76461, 'rented', 'Truck', '10376 King George Blvd', 'Surrey');
+
+--cellphone, name, address, dlicense
+INSERT INTO Customers VALUES('6136624852', 'Jose L Kappel', '2202 Pitt St, Cornwall, ON K6J3R2', 'NHL12506717');
+INSERT INTO Customers VALUES('5718610645', 'Marina J Rojas', '418 Blanshard St, Victoria, BC V8W2H9', 'WDLJKMN580GF');
+INSERT INTO Customers VALUES('9897069420', 'Brian C Mares', '110 Rene-Levesque Blvd, Montreal, QC H3B4W8', 'TP102445F');
+INSERT INTO Customers VALUES('8922249372', 'Marilyn G Cheney', '3943 Elgin St, Cardinial, ON K0E1E0', 'P14245587924');
+INSERT INTO Customers VALUES('7012557073', 'Dolores R Karle', '3164 King St, Chester, NS B0J1J0', 'WDLBCDF789GK');
+
+--confNo, vtname, dlicense, fromDateTime, toDateTime
+INSERT INTO Reservations VALUES(0, 'Truck', 'TP102445F', TO_TIMESTAMP('2019-11-15 09:30', 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP('2019-11-15 17:30', 'YYYY-MM-DD HH24:MI'));
+INSERT INTO Reservations VALUES(1, 'Truck', 'NHL12506717', TO_TIMESTAMP('2019-11-20 08:30', 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP('2019-11-29 17:10', 'YYYY-MM-DD HH24:MI'));
+INSERT INTO Reservations VALUES(2, 'Compact', 'WDLBCDF789GK', TO_TIMESTAMP('2019-12-14 17:45', 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP('2019-12-28 13:10', 'YYYY-MM-DD HH24:MI'));
+INSERT INTO Reservations VALUES(3, 'SUV', 'P14245587924', TO_TIMESTAMP('2019-12-06 11:30', 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP('2019-12-08 13:00', 'YYYY-MM-DD HH24:MI'));
+
+--rid, vlicense, dlicense, fromDateTime, toDateTime, odometer, cardName, cardNo, ExpDate, confNo
+INSERT INTO Rentals
+VALUES(
+    10, '329RBL', 'TP102445F', TO_TIMESTAMP('2019-11-15 09:30', 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP('2019-11-15 17:30', 'YYYY-MM-DD HH24:MI'),
+    76449, 'MasterCard', '5107317100135176', TO_DATE('2022-03', 'YYYY-MM'), 0
+);
+INSERT INTO Rentals
+VALUES(
+    11, '329RBL', 'NHL12506717', TO_TIMESTAMP('2019-11-20 08:30', 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP('2019-11-29 17:10', 'YYYY-MM-DD HH24:MI'),
+    76461, 'Visa', '4485825952861926', TO_DATE('2022-10', 'YYYY-MM'), 1
+);
+
+--rid, returnDateTime, odometer, fullTank, value 
+INSERT INTO Returns
+VALUES(10, TO_TIMESTAMP('2019-11-15 17:30', 'YYYY-MM-DD HH24:MI'), 76461, 1, 380.00);
+
+/*
 insert into Vehicle values(060839453,'ka385r', 'Honda','Civic','2017','Grey', 21902, 'ForRent', 'Economy', '3274  Silver St','Vancouver');
 insert into Vehicle values(112348546,'SP323z', 'Honda','Civic','2000','White', 83100, 'ForRent', 'Economy', '3493  Reserve St','New York');
 insert into Vehicle values(115987938,'7f9693', 'Honda','Civic','2012','Grey', 31199, 'ForRent', 'Economy', '3493  Reserve St','New York');
@@ -135,3 +232,4 @@ insert into Vehicle values(060479703,'V0701I','Nissan','Pathfinder','2019','Blac
 insert into Customer values ('7467576546', 'Kevin', '4992  Walsh Street, Thunder Bay', 99683944);
 insert into Customer values ('8867650280', 'Nancy', '179  Bay Street, Toronto', 80698940);
 insert into Customer values ('648987580', 'Joan D Janes', '4196  King George Hwy, Surrey', 66205611);
+*/

@@ -28,11 +28,20 @@ drop table VehicleType cascade constraints;
 --
 -- Now, add each table.
 --
+<<<<<<< HEAD
+CREATE TABLE Branch(
+    location varchar2(30),
+    city varchar2(30),
+    PRIMARY KEY(location, city)
+);
+    
+=======
 create table Branch(
 	location varchar2(30),
 	city varchar2(30),
 	primary key(location,city),
 	);
+>>>>>>> 207776cd1cfbfbcabd70d8dc5864d5e2b648aa6c
 create table VehicleType(
 	vtname varchar2(30),
 	features varchar2(30),
