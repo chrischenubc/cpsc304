@@ -8,6 +8,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -164,16 +166,20 @@ public class MainWindow extends JFrame{
         JTextField timeText = new JTextField(5);
 
         JPanel myPanel = new JPanel();
+        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
         myPanel.add(new JLabel("Car Type:"));
         myPanel.add(carTypeText);
         myPanel.add(Box.createHorizontalStrut(15)); // a spacer
         myPanel.add(new JLabel("Location:"));
         myPanel.add(locationText);
-        myPanel.add(new JLabel("Time Interval:"));
+        myPanel.add(new JLabel("Date&Time in YYYY-MM-DD HH24:MI format"));
         myPanel.add(timeText);
 
+//        DateFormat inputFormat = new SimpleDateFormat("YYYY-MM-DD HH24:MI");
+
+
         int result = JOptionPane.showConfirmDialog(null, myPanel,
-                "Please Enter X and Y Values", JOptionPane.OK_CANCEL_OPTION);
+                "Please Enter X and Y Values", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             res[0] = carTypeText.getText();
             res[1] = locationText.getText();
