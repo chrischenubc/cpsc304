@@ -7,6 +7,7 @@
 -- creates tables for use
 -------------------------------------------------------------------------------
 SET SQLBLANKLINES ON;
+SET LINESIZE 1500;
 
 -- Drop existing tables
 BEGIN
@@ -27,15 +28,15 @@ END;
 
 -- Add each table
 CREATE TABLE Branches(
-    location VARCHAR2(255),
-    city VARCHAR2(255),
+    location VARCHAR2(50),
+    city VARCHAR2(31),
 
     PRIMARY KEY(location, city)
 );
 
 CREATE TABLE VehicleTypes(
-    vtname VARCHAR2(255),
-    features VARCHAR2(255),
+    vtname VARCHAR2(15),
+    features VARCHAR2(31),
     wrate NUMBER(9,2),
     drate NUMBER(9,2),
     hrate NUMBER(9,2),
@@ -49,16 +50,16 @@ CREATE TABLE VehicleTypes(
 
 CREATE TABLE Vehicles(
     -- vid has been removed as a vehicle is identified by its plate number
-    vlicense VARCHAR2(255),
-    make VARCHAR2(255),
-    model VARCHAR2(255),
+    vlicense VARCHAR2(15),
+    make VARCHAR2(31),
+    model VARCHAR2(31),
     year NUMBER(4,0),
-    color VARCHAR2(255),
+    color VARCHAR2(15),
     odometer NUMBER(9,0),
-    status VARCHAR2(255),
-    vtname VARCHAR2(255),
-    location VARCHAR2(255),
-    city VARCHAR2(255),
+    status VARCHAR2(15),
+    vtname VARCHAR2(15),
+    location VARCHAR2(50),
+    city VARCHAR2(31),
 
     PRIMARY KEY(vlicense),
 
@@ -71,19 +72,19 @@ CREATE TABLE Vehicles(
 );
 
 CREATE TABLE Customers(
-    cellphone VARCHAR2(255),
-    name VARCHAR2(255),
-    address VARCHAR2(255),
-    dlicense VARCHAR2(255),
+    cellphone VARCHAR2(15),
+    name VARCHAR2(50),
+    address VARCHAR2(50),
+    dlicense VARCHAR2(50),
 
     PRIMARY KEY(dlicense)
 );
 
 CREATE TABLE Reservations(
     confNo NUMBER(9,0),
-    vtname VARCHAR2(255),
+    vtname VARCHAR2(15),
     -- cellphone has been replaced by dlicense
-    dlicense VARCHAR2(255),
+    dlicense VARCHAR2(50),
     fromDateTime TIMESTAMP,
     toDateTime TIMESTAMP,
 
@@ -99,14 +100,14 @@ CREATE TABLE Reservations(
 
 CREATE TABLE Rentals(
     rid NUMBER(9,0),
-    vlicense VARCHAR2(255),
+    vlicense VARCHAR2(15),
     -- cellphone has been replaced by dlicense
-    dlicense VARCHAR2(255),
+    dlicense VARCHAR2(50),
     fromDateTime TIMESTAMP,
     toDateTime TIMESTAMP,
     odometer NUMBER(9,0),
-    cardName VARCHAR2(255),
-    cardNo VARCHAR2(255),
+    cardName VARCHAR2(15),
+    cardNo VARCHAR2(31),
     ExpDate Date,
     confNo NUMBER(9,0),
 
@@ -196,6 +197,11 @@ VALUES(
     11, '329RBL', 'NHL12506717', TO_TIMESTAMP('2019-11-20 08:30', 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP('2019-11-29 17:10', 'YYYY-MM-DD HH24:MI'),
     76461, 'Visa', '4485825952861926', TO_DATE('2022-10', 'YYYY-MM'), 1
 );
+INSERT INTO Rentals
+VALUES(
+    12, 'BMO34A', 'WDLJKMN580GF', TO_TIMESTAMP('2019-12-25 14:25', 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP('2019-12-27 11:00', 'YYYY-MM-DD HH24:MI'),
+    63867, 'Visa', '4716764223572395', TO_DATE('2023-01', 'YYYY-MM'), NULL
+); 
 
 --rid, returnDateTime, odometer, fullTank, value 
 INSERT INTO Returns
