@@ -62,7 +62,15 @@ WHERE Vehicles.vlicense NOT IN(
         (TO_TIMESTAMP('2019-12-14 13:00', 'YYYY-MM-DD HH24:MI') < Rentals.toDateTime)
 );
 
--- Returns 0 if a customer is new (ex. 'Annie Kim', '5083451849')
+-- Return 0 if a customer is new (ex. Annie Kim, 5083451849)
 SELECT COUNT(*)
 FROM Customers
 WHERE cellphone = '5083451849' AND name = 'Annie Kim';
+
+-- Add a new customer (ex. 5083451849, Annie Kim, 725 Granville St, Vancouver, BC V7Y1G5, TP355M1)
+INSERT INTO Customers
+VALUES('5083451849', 'Annie Kim', '725 Granville St, Vancouver, BC V7Y1G5', 'TP355M1');
+
+-- Make a reservatioin
+INSERT INTO Reservations
+VALUES(seq_confNo.nextval, 'Standard', 'TP355M1', TO_TIMESTAMP('2019-12-14 13:00', 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP('2019-12-18 17:45', 'YYYY-MM-DD HH24:MI'));
