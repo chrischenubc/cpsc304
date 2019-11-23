@@ -73,8 +73,13 @@ public class DatabaseConnectionHandler {
 	};
 
 	public void viewAvaiableVehicles(VehicleType type, String location, String timeStart, String timeEnd) {
-
-	};
+    try {
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM Vehicles WHERE status = 'available'");
+    } catch (SQLException e) {
+        System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+    }
+    };
 
 	public void makeReservation() {
 
