@@ -2,15 +2,13 @@ package ca.ubc.cs304.controller;
 
 import ca.ubc.cs304.database.DatabaseConnectionHandler;
 import ca.ubc.cs304.delegates.*;
-import ca.ubc.cs304.model.BranchModel;
 import ca.ubc.cs304.ui.LoginWindow;
 import ca.ubc.cs304.ui.MainWindow;
-import ca.ubc.cs304.ui.TerminalTransactions;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public   class Store implements LoginWindowDelegate, ClientTransactionsDelegate, StoreTransactionsDelegate, MainWindowDelegate {
+public   class Store implements LoginWindowDelegate, MainWindowDelegate {
     private DatabaseConnectionHandler dbHandler = null;
     private LoginWindow loginWindow = null;
     private MainWindow mainWindow = null;
@@ -94,8 +92,12 @@ public   class Store implements LoginWindowDelegate, ClientTransactionsDelegate,
     }
 
     @Override
-    public void viewAvaiableVehicles() {
-
+    public int findNumOfAvailableVehicles(String type, String location, String timeStart, String timeEnd) {
+        return dbHandler.findNumOfAvailableVehicles(type, location, timeStart, timeEnd);
+    }
+    @Override
+    public List<String[]> viewAvaiableVehicles(String type, String location, String timeStart, String timeEnd) {
+        return dbHandler.viewAvailableVehicles(type,location,timeStart,timeEnd);
     }
 
     @Override

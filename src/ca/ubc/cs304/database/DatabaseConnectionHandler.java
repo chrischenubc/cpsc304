@@ -72,13 +72,117 @@ public class DatabaseConnectionHandler {
 
 	};
 
-	public void viewAvaiableVehicles(VehicleType type, String location, String timeStart, String timeEnd) {
-    try {
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM Vehicles WHERE status = 'available'");
-    } catch (SQLException e) {
-        System.out.println(EXCEPTION_TAG + " " + e.getMessage());
-    }
+	public int findNumOfAvailableVehicles(String type, String location, String timeStart, String timeEnd) {
+//		type = "SUV";
+//		location = "1250 Granville St";
+//		timeStart = "2019-12-14 13:00";
+//		timeEnd = "2019-12-18 17:45";
+		String sql = "SELECT * FROM Vehicles WHERE status = 'available'";
+		int count = 0;
+		try {
+			PreparedStatement prepState;
+			if (!timeStart.equals("") && !timeEnd.equals("")) {
+				sql =   "SELECT COUNT(*) AS total \n" +
+						"FROM Vehicles\n" +
+						"WHERE Vehicles.vlicense NOT IN(\n" +
+						"    SELECT Rentals.vlicense\n" +
+						"    FROM Vehicles, Rentals\n" +
+						"    WHERE (Vehicles.vlicense = Rentals.vlicense) AND\n" +
+						"        (Rentals.fromDateTime < TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI')) OR\n" +
+						"        ((Rentals.fromDateTime < TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI')) AND\n" +
+						"            TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI') < Rentals.toDateTime) OR\n" +
+						"        (TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI') < Rentals.toDateTime)\n" +
+						")";
+				if (!type.equals("")) {
+					sql += " AND VTNAME = '" + type + "\'";
+				}
+				if (!location.equals("")) {
+					sql += " AND LOCATION = '" + location + "\'";
+				}
+				prepState = connection.prepareStatement(sql);
+				prepState.setString(1, timeEnd);
+				prepState.setString(2, timeStart);
+				prepState.setString(3, timeEnd);
+				prepState.setString(4, timeStart);
+			} else {
+				if (!type.equals("")) {
+					sql += " AND VTNAME = '" + type + "\'";
+				}
+				if (!location.equals("")) {
+					sql += " AND LOCATION = '" + location + "\'";
+				}
+				sql = "SELECT COUNT(*) AS total FROM (" + sql + ")";
+				prepState = connection.prepareStatement(sql);
+			}
+
+			ResultSet rs = prepState.executeQuery();
+			while (rs.next()) {
+				count = rs.getInt("total");
+			}
+
+
+		} catch (Exception e) {
+			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+		}
+		return count;
+	}
+
+	public List<String[]> viewAvailableVehicles(String type, String location, String timeStart, String timeEnd) {
+		List<String[]> res = new ArrayList<>();
+		String[] colName = {"vlicense", "make", "model", "year", "color", "status", "vtname", "location", "city"};
+		res.add(colName);
+		try {
+			String sql = "SELECT * FROM Vehicles WHERE status = 'available'";
+			PreparedStatement prepState;
+			if (!timeStart.equals("") && !timeEnd.equals("")) {
+				prepState = connection.prepareStatement("SELECT * \n" +
+						"FROM Vehicles\n" +
+						"WHERE Vehicles.vlicense NOT IN(\n" +
+						"    SELECT Rentals.vlicense\n" +
+						"    FROM Vehicles, Rentals\n" +
+						"    WHERE (Vehicles.vlicense = Rentals.vlicense) AND\n" +
+						"        (Rentals.fromDateTime < TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI')) OR\n" +
+						"        ((Rentals.fromDateTime < TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI')) AND\n" +
+						"            TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI') < Rentals.toDateTime) OR\n" +
+						"        (TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI') < Rentals.toDateTime)\n" +
+						")");
+				if (!type.equals("")) {
+					sql += " AND VTNAME = '" + type + "\'";
+				}
+				if (!location.equals("")) {
+					sql += " AND LOCATION = '" + location + "\'";
+				}
+				prepState.setString(1, timeEnd);
+				prepState.setString(2, timeStart);
+				prepState.setString(3, timeEnd);
+				prepState.setString(4, timeStart);
+			} else {
+				if (!type.equals("")) {
+					sql += " AND VTNAME = '" + type + "\'";
+				}
+				if (!location.equals("")) {
+					sql += " AND LOCATION = '" + location + "\'";
+				}
+				prepState = connection.prepareStatement(sql);
+			}
+			ResultSet rs = prepState.executeQuery();
+			while (rs.next()) {
+				String[] row = new String[colName.length];
+				row[0] = rs.getString("vlicense");
+				row[1] = rs.getString("make");
+				row[2] = rs.getString("model");
+				row[3] = rs.getString("year");
+				row[4] = rs.getString("color");
+				row[5] = rs.getString("status");
+				row[6] = rs.getString("vtname");
+				row[7] = rs.getString("location");
+				row[8] = rs.getString("city");
+				res.add(row);
+			}
+		} catch (SQLException e) {
+			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+		}
+		return res;
     };
 
 	public void makeReservation() {
