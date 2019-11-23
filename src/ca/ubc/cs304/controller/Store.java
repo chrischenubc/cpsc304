@@ -7,9 +7,10 @@ import ca.ubc.cs304.ui.LoginWindow;
 import ca.ubc.cs304.ui.MainWindow;
 import ca.ubc.cs304.ui.TerminalTransactions;
 
+import java.sql.SQLException;
 import java.util.List;
 
-public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, StoreTransactionsDelegate, MainWindowDelegate {
+public   class Store implements LoginWindowDelegate, ClientTransactionsDelegate, StoreTransactionsDelegate, MainWindowDelegate {
     private DatabaseConnectionHandler dbHandler = null;
     private LoginWindow loginWindow = null;
     private MainWindow mainWindow = null;
@@ -22,7 +23,7 @@ public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, S
     private void start() {
 //        loginWindow = new LoginWindow();
 //        loginWindow.showFrame(this);
-          this.testLogin("Your Oracle db name", "Your Oracle db passwd");
+          this.testLogin("ora_keith520", "a11691152");
     }
 
     /**
@@ -62,23 +63,14 @@ public class Store implements LoginWindowDelegate, ClientTransactionsDelegate, S
         }
     }
 
-    public String viewAllTables() {
-        List<String> allTables = dbHandler.viewAllTables();
-        String res = new String();
-        for (String table: allTables) {
-            System.out.println(table);
-            res += table += NEWLINE;
-        }
-        return res;
+    public List<String[]> viewAllTables() throws SQLException {
+        return dbHandler.viewAllTables();
     }
 
-
-
-
-
-
-
-
+    @Override
+    public String executeSelect(String sql) {
+        return dbHandler.executeSelect(sql);
+    }
 
     /**
      * TerminalTransactionsDelegate Implementation

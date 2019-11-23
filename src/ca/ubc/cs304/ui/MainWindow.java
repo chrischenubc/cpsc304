@@ -7,6 +7,12 @@ import javax.swing.JFrame;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
 
 public class MainWindow extends JFrame{
     private JButton btn;
@@ -25,6 +31,7 @@ public class MainWindow extends JFrame{
 
         // Text Area at the Center
         JTextArea textArea = new JTextArea();
+
         JScrollPane scrollPane = new JScrollPane(textArea);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         textArea.setEditable(false);
@@ -34,8 +41,21 @@ public class MainWindow extends JFrame{
         viewAllTablesBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                String res = delegate.viewAllTables();
-                textArea.append(res);
+                try {
+                    List<String[]> res = delegate.viewAllTables();
+                    displayResult(res, scrollPane);
+                } catch (Exception e) {
+                    displayErrorMsg(e.getMessage());
+//                    System.out.println("SQL Exception: " + e.getMessage());
+                }
+//                textArea.append(res);
+            }
+        });
+        JButton viewAvailableVehiclesBtn = new JButton("View Available Vehicles");
+        viewAvailableVehiclesBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String[] res = promptInputSetofAvaiableCars();
             }
         });
         JButton makeReservationBtn = new JButton("Make Reservation");
@@ -47,6 +67,7 @@ public class MainWindow extends JFrame{
         JMenuBar menuBar = new JMenuBar();
 
         menuBar.add(viewAllTablesBtn);
+        menuBar.add(viewAvailableVehiclesBtn);
         menuBar.add(makeReservationBtn);
         menuBar.add(rentVehicleBtn);
         menuBar.add(returnVehicleBtn);
@@ -56,9 +77,15 @@ public class MainWindow extends JFrame{
 
         //Creating the panel at bottom and adding components
         JPanel panel = new JPanel(); // the panel is not visible in output
-        JLabel label = new JLabel("Enter Text");
-        JTextField tf = new JTextField(10); // accepts upto 10 characters
+        JLabel label = new JLabel("Enter Your SQL");
+        JTextField tf = new JTextField(50); // accepts upto 10 characters
         JButton send = new JButton("Send");
+        send.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String text = tf.getText();
+            }
+        });
         JButton reset = new JButton("Reset");
         panel.add(label); // Components Added using Flow Layout
         panel.add(label); // Components Added using Flow Layout
@@ -83,9 +110,84 @@ public class MainWindow extends JFrame{
 
     static class FakeDelegate implements MainWindowDelegate {
         @Override
-        public String viewAllTables() {
-            return "Fake delegate testing string";
+        public List<String[]> viewAllTables() throws SQLException{
+            String[] colName = {"name", "age"};
+            String[] row1 = {"Anna", "27"};
+            String[] row2 = {"Anna", "27"};
+            String[] row3 = {"Anna", "27"};
+            String[] row4 = {"Anna", "27"};
+            List<String[]> res = new ArrayList<>();
+            res.add(colName);
+            res.add(row1);
+            res.add(row2);
+            res.add(row3);
+            res.add(row4);
+            //return res;
+            throw new SQLException("My error");
+
+        }
+
+        @Override
+        public String executeSelect(String sql) {
+            return null;
         }
     }
 
+    private void displayResult(List<String[]> res, JScrollPane scrollPane) {
+        if (res.size() == 0) {
+            return;
+        }
+        String[] columnNames = new String[res.get(0).length];
+        String[][] data = new String[res.size() - 1][res.get(0).length];
+        for (int i = 0; i < res.size(); i++) {
+            for (int j = 0; j < res.get(0).length; j++) {
+                if (i == 0) {
+                    columnNames[j] = res.get(0)[j];
+                } else {
+                    data[i - 1][j] = res.get(i)[j];
+                }
+            }
+        }
+        // Initializing the JTable
+        JTable jTable;
+        jTable = new JTable(data, columnNames);
+        jTable.setBounds(30, 40, 200, 300);
+        scrollPane.setViewportView(jTable);
+    }
+
+    private void displayErrorMsg(String msg) {
+        JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private String[] promptInputSetofAvaiableCars() {
+        String[] res = new String[3];
+        JTextField carTypeText = new JTextField(5);
+        JTextField locationText = new JTextField(5);
+        JTextField timeText = new JTextField(5);
+
+        JPanel myPanel = new JPanel();
+        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+        myPanel.add(new JLabel("Car Type:"));
+        myPanel.add(carTypeText);
+        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+        myPanel.add(new JLabel("Location:"));
+        myPanel.add(locationText);
+        myPanel.add(new JLabel("Date&Time in YYYY-MM-DD HH24:MI format"));
+        myPanel.add(timeText);
+
+//        DateFormat inputFormat = new SimpleDateFormat("YYYY-MM-DD HH24:MI");
+
+
+        int result = JOptionPane.showConfirmDialog(null, myPanel,
+                "Please Enter X and Y Values", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            res[0] = carTypeText.getText();
+            res[1] = locationText.getText();
+            res[2] = timeText.getText();
+            System.out.println("Car Type: " + carTypeText.getText());
+            System.out.println("Location: " + locationText.getText());
+            System.out.println("Time Interval: " + timeText.getText());
+        }
+        return res;
+    }
 }

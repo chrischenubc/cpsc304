@@ -20,6 +20,7 @@ public class DatabaseConnectionHandler {
 //	private static final String ORACLE_URL = "jdbc:oracle:thin:@dbhost.students.cs.ubc.ca:1522:stu";
 	private static final String EXCEPTION_TAG = "[EXCEPTION]";
 	private static final String WARNING_TAG = "[WARNING]";
+	private final static String NEWLINE = "\n";
 	
 	private Connection connection = null;
 	
@@ -44,6 +45,23 @@ public class DatabaseConnectionHandler {
 	}
 
 	// the following methods are SQL operations used for our projects
+	public String executeSelect(String sql) {
+		String res = new String();
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				res.concat(rs.getString("TABLE_NAME"));
+			}
+		} catch (SQLException e) {
+			res = e.getMessage();
+			System.out.println(EXCEPTION_TAG + " " + res);
+			return res;
+		}
+		return res;
+	}
+
+
 	public void rentVehicle() {
 
 	};
@@ -63,18 +81,23 @@ public class DatabaseConnectionHandler {
 	};
 
 	//Viewing all tables in the database
-	public List<String> viewAllTables() {
-		List<String> allTables = new ArrayList<>();
+	public List<String[]> viewAllTables() throws SQLException{
+		String[] colName = {"TABLE_NAME"};
+		List<String[]> res = new ArrayList<>();
+		res.add(colName);
+
 		try {
 			Statement stmt = connection.createStatement();
 			ResultSet rs = stmt.executeQuery("SELECT table_name FROM user_tables");
 			while (rs.next()) {
-				allTables.add(rs.getString("TABLE_NAME"));
+				String[] row = new String[colName.length];
+				row[0] = rs.getString("TABLE_NAME");
+				res.add(row);
 			}
 		} catch (SQLException e) {
-			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+			throw e;
 		}
-		return allTables;
+		return res;
 	}
 
 //	public void insertIntoTable(String table, ) {
