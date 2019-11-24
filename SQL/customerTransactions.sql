@@ -74,3 +74,4 @@ VALUES('5083451849', 'Annie Kim', '725 Granville St, Vancouver, BC V7Y1G5', 'TP3
 -- Make a reservatioin
 INSERT INTO Reservations
 VALUES(seq_confNo.nextval, 'Standard', 'TP355M1', TO_TIMESTAMP('2019-12-14 13:00', 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP('2019-12-18 17:45', 'YYYY-MM-DD HH24:MI'));
+

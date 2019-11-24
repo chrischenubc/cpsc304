@@ -131,6 +131,12 @@ CREATE TABLE Rentals(
         ON DELETE CASCADE
 );
 
+CREATE SEQUENCE seq_rentalId
+MINVALUE 0
+START WITH 0
+INCREMENT BY 1
+CACHE 10;
+
 CREATE TABLE Returns(
     rid NUMBER(9,0),
     returnDateTime TIMESTAMP,
@@ -143,6 +149,12 @@ CREATE TABLE Returns(
     FOREIGN KEY(rid)
         REFERENCES Rentals
 );
+
+CREATE SEQUENCE seq_returnId
+MINVALUE 0
+START WITH 0
+INCREMENT BY 1
+CACHE 10;
 
 
 -- Add tuples

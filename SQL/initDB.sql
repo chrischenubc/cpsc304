@@ -97,6 +97,13 @@ CREATE TABLE Reservations(
         ON DELETE CASCADE
 );
 
+
+CREATE SEQUENCE seq_confNo
+MINVALUE 0
+START WITH 0
+INCREMENT BY 1
+CACHE 10;
+
 CREATE TABLE Rentals(
     rid NUMBER(9,0),
     vlicense VARCHAR2(255),
@@ -123,6 +130,12 @@ CREATE TABLE Rentals(
         ON DELETE CASCADE
 );
 
+CREATE SEQUENCE seq_rentalId
+MINVALUE 0
+START WITH 0
+INCREMENT BY 1
+CACHE 10;
+
 CREATE TABLE Returns(
     rid NUMBER(9,0),
     returnDateTime TIMESTAMP,
@@ -135,7 +148,6 @@ CREATE TABLE Returns(
     FOREIGN KEY(rid)
         REFERENCES Rentals
 );
-
 
 -- Add tuples
 INSERT INTO Branches VALUES('180 W Georgia St', 'Vancouver');
