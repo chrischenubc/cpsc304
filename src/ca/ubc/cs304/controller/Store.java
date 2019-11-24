@@ -21,9 +21,10 @@ public   class Store implements LoginWindowDelegate, ClientTransactionsDelegate,
     }
 
     private void start() {
-//        loginWindow = new LoginWindow();
-//        loginWindow.showFrame(this);
-          this.testLogin("ora_keith520", "a11691152");
+        loginWindow = new LoginWindow();
+        loginWindow.showFrame(this);
+//          this.testLogin("ora_keith520", "a11691152");
+    	  
     }
 
     /**
@@ -37,7 +38,8 @@ public   class Store implements LoginWindowDelegate, ClientTransactionsDelegate,
         if (didConnect) {
             // Once connected, remove login window and start text transaction flow
             loginWindow.dispose();
-
+            mainWindow = new MainWindow();
+            mainWindow.showFrame(this);
             //Temporary remove to the console prompt
 //            TerminalTransactions transaction = new TerminalTransactions();
 //            transaction.showMainMenu(this);
