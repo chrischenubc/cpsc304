@@ -181,6 +181,7 @@ INSERT INTO Vehicles VALUES('BMO34A', 'Chevrolet', 'Impala', 2013, 'White', 6386
 INSERT INTO Vehicles VALUES('XNK656', 'Chevrolet', 'Malibu', 2018, 'Red', 38085, 'rented', 'Full-size', '221 Thompson St', 'New York');
 INSERT INTO Vehicles VALUES('241EKA', 'Nissan', 'Qashqai', 2015, 'White', 71611, 'rented', 'SUV', '10376 King George Blvd', 'Surrey');
 INSERT INTO Vehicles VALUES('896REN', 'Nissan', 'Rogue', 2019, 'White', 278, 'available', 'SUV', '1250 Granville St', 'Vancouver');
+INSERT INTO Vehicles VALUES('837UVE', 'Nissan', 'Rogue', 2017, 'White', 243, 'available', 'SUV', '1250 Granville St', 'Vancouver');
 INSERT INTO Vehicles VALUES('861AJP', 'Jeep', 'Grand Cherokee', 2017, 'White', 55281, 'available', 'SUV', '9051 Beckwith Rd', 'Richmond');
 INSERT INTO Vehicles VALUES('329RBL', 'Ford', 'F150 Super Crew', 2016, 'Black', 76461, 'rented', 'Truck', '10376 King George Blvd', 'Surrey');
 

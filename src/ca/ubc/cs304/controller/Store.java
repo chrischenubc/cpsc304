@@ -2,15 +2,13 @@ package ca.ubc.cs304.controller;
 
 import ca.ubc.cs304.database.DatabaseConnectionHandler;
 import ca.ubc.cs304.delegates.*;
-import ca.ubc.cs304.model.BranchModel;
 import ca.ubc.cs304.ui.LoginWindow;
 import ca.ubc.cs304.ui.MainWindow;
-import ca.ubc.cs304.ui.TerminalTransactions;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public   class Store implements LoginWindowDelegate, ClientTransactionsDelegate, StoreTransactionsDelegate, MainWindowDelegate {
+public   class Store implements LoginWindowDelegate, MainWindowDelegate {
     private DatabaseConnectionHandler dbHandler = null;
     private LoginWindow loginWindow = null;
     private MainWindow mainWindow = null;
@@ -96,14 +94,19 @@ public   class Store implements LoginWindowDelegate, ClientTransactionsDelegate,
     }
 
     @Override
-    public void viewAvaiableVehicles() {
-
+    public int findNumOfAvailableVehicles(String type, String location, String timeStart, String timeEnd) {
+        return dbHandler.findNumOfAvailableVehicles(type, location, timeStart, timeEnd);
+    }
+    @Override
+    public List<String[]> viewAvaiableVehicles(String type, String location, String timeStart, String timeEnd) {
+        return dbHandler.viewAvailableVehicles(type,location,timeStart,timeEnd);
     }
 
     @Override
-    public void makeReservation() {
-
+    public String makeReservation(String vtname, String dlicense, String fromTime, String endTime) throws SQLException {
+        return dbHandler.makeReservation(vtname, dlicense, fromTime, endTime);
     }
+
 
     @Override
     public void rentVehicle() {
@@ -118,5 +121,15 @@ public   class Store implements LoginWindowDelegate, ClientTransactionsDelegate,
     @Override
     public void generateReport() {
 
+    }
+
+    @Override
+    public boolean checkUserExists(String username, String cellphone) throws SQLException{
+        return dbHandler.checkUserExist(username, cellphone);
+    }
+
+    @Override
+    public void addNewUser(String cellphone, String name, String address, String dlicense) throws SQLException {
+        dbHandler.addNewUser(cellphone, name, address, dlicense);
     }
 }
