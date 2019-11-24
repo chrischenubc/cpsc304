@@ -79,6 +79,43 @@ public class MainWindow extends JFrame{
             }
         });
         JButton makeReservationBtn = new JButton("Make Reservation");
+        makeReservationBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String username;
+                String dlicense;
+                JTextField userNameText = new JTextField(5);
+                JTextField cellphoneText = new JTextField(5);
+
+                JPanel myPanel = new JPanel();
+                myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                myPanel.add(new JLabel("User name:"));
+                myPanel.add(userNameText);
+                myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                myPanel.add(new JLabel("Driver's license:"));
+                myPanel.add(cellphoneText);
+                int result = JOptionPane.showConfirmDialog(null, myPanel,
+                        "Please Enter your name and cellphone", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                try {
+                    if (result == JOptionPane.OK_OPTION) {
+                        username = userNameText.getText();
+                        dlicense = cellphoneText.getText();
+                        boolean userExists = delegate.checkUserExists(username, dlicense);
+                        if (!userExists) {
+                            String[] userInfo = promptClientInfo();
+                            delegate.addNewUser(userInfo[0], userInfo[1], userInfo[2], userInfo[3]);
+                            dlicense = userInfo[3];
+                        }
+                        String[] reservationInfo = promptReservationInfo();
+                        String confNum = delegate.makeReservation(reservationInfo[0], dlicense, reservationInfo[1], reservationInfo[2]);
+                        JOptionPane.showConfirmDialog(null,"Success!",
+                                "You reservation is completed\nYour confirmation number is "+confNum, JOptionPane.PLAIN_MESSAGE);
+                    }
+                } catch (SQLException e) {
+                    displayErrorMsg(e.getMessage());
+                }
+            }
+        });
         JButton rentVehicleBtn = new JButton("Rent Vehicle");
         JButton returnVehicleBtn = new JButton("Return Vehicle");
         JButton generateReportBtn = new JButton("Generate Report");
@@ -190,6 +227,36 @@ public class MainWindow extends JFrame{
         JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    private String[] promptClientInfo() {
+        String[] res = new String[4];
+        JTextField cellphone = new JTextField(5);
+        JTextField name = new JTextField(5);
+        JTextField address = new JTextField(5);
+        JTextField dlicense = new JTextField(5);
+
+        JPanel myPanel = new JPanel();
+        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+        myPanel.add(new JLabel("Cell phone:"));
+        myPanel.add(cellphone);
+        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+        myPanel.add(new JLabel("Name:"));
+        myPanel.add(name);
+        myPanel.add(new JLabel("Address"));
+        myPanel.add(address);
+        myPanel.add(new JLabel("Driver's license"));
+        myPanel.add(dlicense);
+
+        int result = JOptionPane.showConfirmDialog(null, myPanel,
+                "New User - Please enter your information", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            res[0] = cellphone.getText();
+            res[1] = name.getText();
+            res[2] = address.getText();
+            res[3] = dlicense.getText();
+        }
+        return res;
+    }
+
     private String[] promptInputSetofAvaiableCars() {
         String[] res = new String[4];
         JTextField carTypeText = new JTextField(5);
@@ -214,7 +281,7 @@ public class MainWindow extends JFrame{
 
 
         int result = JOptionPane.showConfirmDialog(null, myPanel,
-                "Please Enter X and Y Values", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                "What vehicles are you looking for?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             res[0] = carTypeText.getText();
             res[1] = locationText.getText();
@@ -224,6 +291,33 @@ public class MainWindow extends JFrame{
             System.out.println("Location: " + locationText.getText());
             System.out.println("Start time: " + startTime.getText());
             System.out.println("End time: " + endTime.getText());
+        }
+        return res;
+    }
+
+    private String[] promptReservationInfo() {
+        String[] res = new String[3];
+        JTextField carTypeText = new JTextField(5);
+        JTextField startTime = new JTextField(5);
+        JTextField endTime = new JTextField(5);
+
+
+        JPanel myPanel = new JPanel();
+        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+        myPanel.add(new JLabel("Car Type:"));
+        myPanel.add(carTypeText);
+        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+        myPanel.add(new JLabel("Start Time in YYYY-MM-DD HH24:MI format"));
+        myPanel.add(startTime);
+        myPanel.add(new JLabel("End Time in YYYY-MM-DD HH24:MI format"));
+        myPanel.add(endTime);
+
+        int result = JOptionPane.showConfirmDialog(null, myPanel,
+                "What vehicles do you want to reserve?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            res[0] = carTypeText.getText();
+            res[1] = startTime.getText();
+            res[2] = endTime.getText();
         }
         return res;
     }

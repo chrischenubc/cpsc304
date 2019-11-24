@@ -101,9 +101,10 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
     }
 
     @Override
-    public void makeReservation() {
-
+    public String makeReservation(String vtname, String dlicense, String fromTime, String endTime) throws SQLException {
+        return dbHandler.makeReservation(vtname, dlicense, fromTime, endTime);
     }
+
 
     @Override
     public void rentVehicle() {
@@ -118,5 +119,15 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
     @Override
     public void generateReport() {
 
+    }
+
+    @Override
+    public boolean checkUserExists(String username, String cellphone) throws SQLException{
+        return dbHandler.checkUserExist(username, cellphone);
+    }
+
+    @Override
+    public void addNewUser(String cellphone, String name, String address, String dlicense) throws SQLException {
+        dbHandler.addNewUser(cellphone, name, address, dlicense);
     }
 }

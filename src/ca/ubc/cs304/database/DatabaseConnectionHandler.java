@@ -185,9 +185,67 @@ public class DatabaseConnectionHandler {
 		return res;
     };
 
-	public void makeReservation() {
+	public String makeReservation(String vtname, String dlicense, String fromTime, String endTime) throws SQLException{
+		try {
+			int nextConf = 0;
+			String sql = "select SEQ_CONFNO.nextval from DUAL";
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next())
+				 nextConf = rs.getInt(1);
 
+			PreparedStatement prepState = connection.prepareStatement(
+					"INSERT INTO Reservations\n" +
+					   "VALUES(?, ?, ?, TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'))");
+			prepState.setInt(1, nextConf);
+			prepState.setString(2, vtname);
+			prepState.setString(3, dlicense);
+			prepState.setString(4, fromTime);
+			prepState.setString(5, endTime);
+			prepState.executeUpdate();
+			connection.commit();
+
+			return Integer.toString(nextConf);
+
+		} catch (SQLException e) {
+			throw e;
+		}
 	};
+
+	public boolean checkUserExist(String userName, String dlicense) throws SQLException{
+		int count = 0;
+		try {
+			PreparedStatement prepState = connection.prepareStatement(
+					"SELECT COUNT(*) AS total \n" + "FROM Customers\n" + "WHERE DLICENSE = ? AND NAME = ?");
+			prepState.setString(1, dlicense);
+			prepState.setString(2, userName);
+			ResultSet rs = prepState.executeQuery();
+			while (rs.next()) {
+				count = rs.getInt("total");
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return count > 0;
+	}
+
+	public void addNewUser(String cellphone, String name, String address, String dlicense) throws SQLException {
+		try {
+			PreparedStatement prepState = connection.prepareStatement(
+					"INSERT INTO Customers\n" +
+					"VALUES(?, ?, ?, ?)");
+			prepState.setString(1, cellphone);
+			prepState.setString(2, name);
+			prepState.setString(3, address);
+			prepState.setString(4, dlicense);
+
+			prepState.executeUpdate();
+			connection.commit();
+
+		} catch (SQLException e) {
+			throw e;
+		}
+	}
 
 	//Viewing all tables in the database
 	public List<String[]> viewAllTables() throws SQLException{
@@ -204,6 +262,7 @@ public class DatabaseConnectionHandler {
 				res.add(row);
 			}
 		} catch (SQLException e) {
+			rollbackConnection();
 			throw e;
 		}
 		return res;
