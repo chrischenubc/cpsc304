@@ -16,7 +16,6 @@ public class DateHelper {
         sdf.setLenient(false);
 
         try {
-
             //if not valid, it will throw ParseException
             Date date = sdf.parse(dateToValidate);
             System.out.println(date);
@@ -26,6 +25,24 @@ public class DateHelper {
         }
 
         return true;
+    }
+
+    public static Date parse(String dateToValidate) throws ParseException{
+
+        if(dateToValidate == null){
+            return null;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFromat);
+        sdf.setLenient(false);
+        Date date;
+        try {
+            //if not valid, it will throw ParseException
+             date = sdf.parse(dateToValidate);
+             return date;
+        } catch (ParseException e) {
+            throw e;
+        }
     }
 
     public static void main(String[] args) {
