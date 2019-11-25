@@ -62,30 +62,117 @@ public class DatabaseConnectionHandler {
 	}
 
 
-	public List<String[]> rentVehicle(String vlicense, String dlicense, String fromTime, String endTime,String odometer) throws SQLException{
+	public List<String[]> rentVehicle(String vlicense, String dlicense, String fromTime, String endTime,String odometer, String cardName,String cardNo,String ExpDate, boolean hasReservation, String confoNo) throws SQLException{  
 		List<String[]> res = new ArrayList<>();
-		String[] colName = {"confoNo", "date of reservation", "vtname", "location", "duration"};
-		res.add(colName);   
+		String[] colName = {"confoNo", "date of reservation", "vtname", "location", "endTime"};
+		res.add(colName); 	
 		
 		try {
-			String sql = "SELECT cartype, dlicense, fromDateTime, toDateTime as Info\n" + 
-					"FROM Reservations R\n" + 
-					"WHERE R.confNo = ?";
-			PreparedStatement prepState;
-			prepState = connection.prepareStatement(sql);
-			prepState.setString(1, confoNo);
-			ResultSet rs = prepState.executeQuery();
-			while (rs.next()) {
-				String[] row = new String[colName.length];
-				row[0] = rs.getString("cartype");
-				row[1] = rs.getString("dlicense");
-				row[2] = rs.getString("fromDateTime");
-				row[3] = rs.getString("toDateTime");
-				res.add(row);
+			connection.setAutoCommit(false); // atomic transaction		
+			
+			// Cheking if the vehicle to rent is available		
+			String check = "SELECT COUNT(*) AS total\n" + 
+					"FROM Vehicles\n" + 
+					"WHERE vlicense = ? AND status = 'available'";
+			int count = 0;
+			PreparedStatement prepCheck;
+			prepCheck= connection.prepareStatement(check);
+			prepCheck.setString(1, vlicense);
+			ResultSet cr = prepCheck.executeQuery();
+			while(cr.next()) {
+			count = cr.getInt("total");		
 			}
+			if(count==0) {
+				throw new SQLException("The car is already rented.");
+			}
+			
+			// get the vehicle's type name
+			String vtname;
+			String location;
+			String getDetails = "SELECT vtname AS name,location AS loc\n" + 
+					"FROM Vehicles\n" + 
+					"WHERE vlicense = ?";
+			
+			PreparedStatement prepGetName;
+			prepGetName= connection.prepareStatement(getDetails);
+			prepGetName.setString(1, vlicense);
+			ResultSet nameResult = prepGetName.executeQuery();
+			while(nameResult.next()) {
+			 vtname = nameResult.getString("name");	
+			 location = nameResult.getString("loc");
+			}
+			
+			int actualConfo;
+			
+			// case where a reservation was made
+			if(hasReservation) {
+				actualConfo = Integer.parseInt(confoNo);
+			}
+			// case where a reservation were not made
+			else {	
+				String getConfo = "select SEQ_CONFNO.nextval from DUAL";
+				PreparedStatement ps = connection.prepareStatement(getConfo);
+				ResultSet number = ps.executeQuery();
+				if(number.next()) {
+					actualConfo = number.getInt(1);
+				}
+				
+				PreparedStatement newConfo = connection.prepareStatement(
+						"INSERT INTO Reservations\n" +
+						   "VALUES(?, ?, ?, TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'))");
+				newConfo.setInt(1, actualConfo);
+				newConfo.setString(2, vtname);
+				newConfo.setString(3, dlicense);
+				newConfo.setString(4, fromTime);
+				newConfo.setString(5, endTime);
+				newConfo.executeUpdate();
+			}
+				
+			// Generate next rentalId
+				int rentalId;
+				String getRentalId = "select SEQ_RENTALID.nextval from DUAL";
+				PreparedStatement newRentalId = connection.prepareStatement(getRentalId);
+				ResultSet rentalResult = newRentalId.executeQuery();
+				if(rentalResult.next()) {
+					rentalId = rentalResult.getInt(1);
+				}
+				
+				String updateRental = "INSERT INTO Reservations\n" +
+						   "VALUES(?,?,?,?,?,?,?,?,?,?)";
+				PreparedStatement rental = connection.prepareStatement(updateRental);
+				rental.setInt(1,rentalId);
+				rental.setString(2,vlicense);
+				rental.setString(3,dlicense);
+				rental.setString(4,fromTime);
+				rental.setString(5,endTime);
+				rental.setInt(6,Integer.parseInt(odometer));
+				rental.setString(7,cardName);
+				rental.setString(8,cardNo);
+				rental.setString(9,ExpDate);
+				rental.setInt(10,actualConfo);
+				
+				String updateVehicle = "Update Vehicles\n" + 
+						"Set status='rented'\n" + 
+						"WHERE vlicense = ?";
+				PreparedStatement prepState;
+				prepState = connection.prepareStatement(updateVehicle);
+				prepState.setString(1, vlicense);
+				prepState.executeUpdate();
+				connection.commit();
+				
+				String[] row = new String[colName.length];
+				row[0] = String.valueOf(confoNo);
+				row[1] = fromTime;
+				row[2] = vtname;
+				row[3] = location;
+				row[4] = endTime;
+				res.add(row);	
+				
 		} catch (Exception e) {
+			connection.rollback();
 			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
 		}
+			
 		return res;
 		}
 		

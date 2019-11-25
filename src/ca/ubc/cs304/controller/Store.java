@@ -19,10 +19,10 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
     }
 
     private void start() {
-//        loginWindow = new LoginWindow();
-//        loginWindow.showFrame(this);
+       loginWindow = new LoginWindow();
+       loginWindow.showFrame(this);
 //          this.testLogin("ora_keith520", "a11691152");
-      this.testLogin("ora_ziyux", "a50664135");
+ //     this.testLogin("ora_ziyux", "a50664135");
     }
 
     /**
