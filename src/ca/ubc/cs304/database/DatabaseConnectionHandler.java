@@ -61,15 +61,12 @@ public class DatabaseConnectionHandler {
 		return res;
 	}
 
-
 	public List<String[]> rentVehicle(String vlicense, String dlicense, String fromTime, String endTime,String odometer, String cardName,String cardNo,String ExpDate, boolean hasReservation, String confoNo) throws SQLException{  
 		List<String[]> res = new ArrayList<>();
 		String[] colName = {"confoNo", "date of reservation", "vtname", "location", "endTime"};
-		res.add(colName); 	
-		
+		res.add(colName); 		
 		try {
 			connection.setAutoCommit(false); // atomic transaction		
-			
 			// Cheking if the vehicle to rent is available		
 			String check = "SELECT COUNT(*) AS total\n" + 
 					"FROM Vehicles\n" + 
@@ -87,8 +84,8 @@ public class DatabaseConnectionHandler {
 			}
 			
 			// get the vehicle's type name
-			String vtname;
-			String location;
+			String vtname = null;
+			String location =null;
 			String getDetails = "SELECT vtname AS name,location AS loc\n" + 
 					"FROM Vehicles\n" + 
 					"WHERE vlicense = ?";
@@ -97,12 +94,13 @@ public class DatabaseConnectionHandler {
 			prepGetName= connection.prepareStatement(getDetails);
 			prepGetName.setString(1, vlicense);
 			ResultSet nameResult = prepGetName.executeQuery();
+			
 			while(nameResult.next()) {
 			 vtname = nameResult.getString("name");	
 			 location = nameResult.getString("loc");
 			}
 			
-			int actualConfo;
+			int actualConfo = -5;
 			
 			// case where a reservation was made
 			if(hasReservation) {
@@ -115,21 +113,20 @@ public class DatabaseConnectionHandler {
 				ResultSet number = ps.executeQuery();
 				if(number.next()) {
 					actualConfo = number.getInt(1);
+					PreparedStatement newConfo = connection.prepareStatement(
+							"INSERT INTO Reservations\n" +
+							   "VALUES(?, ?, ?, TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'))");
+					newConfo.setInt(1, actualConfo);
+					newConfo.setString(2, vtname);
+					newConfo.setString(3, dlicense);
+					newConfo.setString(4, fromTime);
+					newConfo.setString(5, endTime);
+					newConfo.executeUpdate();
 				}
-				
-				PreparedStatement newConfo = connection.prepareStatement(
-						"INSERT INTO Reservations\n" +
-						   "VALUES(?, ?, ?, TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'))");
-				newConfo.setInt(1, actualConfo);
-				newConfo.setString(2, vtname);
-				newConfo.setString(3, dlicense);
-				newConfo.setString(4, fromTime);
-				newConfo.setString(5, endTime);
-				newConfo.executeUpdate();
 			}
 				
 			// Generate next rentalId
-				int rentalId;
+				int rentalId = -5;
 				String getRentalId = "select SEQ_RENTALID.nextval from DUAL";
 				PreparedStatement newRentalId = connection.prepareStatement(getRentalId);
 				ResultSet rentalResult = newRentalId.executeQuery();
@@ -174,9 +171,7 @@ public class DatabaseConnectionHandler {
 		}
 			
 		return res;
-		}
-		
-	};
+		};
 	
 	public List<String[]> getReservationInfo(String confoNo) throws SQLException{
 		List<String[]> res = new ArrayList<>();
