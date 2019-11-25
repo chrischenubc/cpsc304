@@ -307,7 +307,7 @@ public class MainWindow extends JFrame{
                         List<String[]> receipt = delegate.returnVehicle(vlicense, returnTime, fulltank);
                         displayResult(receipt, scrollPane);
                     } catch (SQLException | ParseException e) {
-                        e.printStackTrace();
+                        displayErrorMsg(e.getMessage());
                     }
                 }
             }
