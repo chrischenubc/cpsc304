@@ -1,6 +1,7 @@
 package ca.ubc.cs304.ui;
 
 import ca.ubc.cs304.delegates.MainWindowDelegate;
+import ca.ubc.cs304.helper.DateHelper;
 
 import javax.swing.*;
 import javax.swing.JFrame;
@@ -9,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -137,6 +139,7 @@ public class MainWindow extends JFrame{
                 JTextField confNoText = new JTextField(5);
                 JTextField locationText = new JTextField(5);
                 myPanel.add(new JLabel("If Yes, Please Enter your confirmation number and location"));
+                myPanel.add(Box.createVerticalStrut(10));
                 myPanel.add(new JLabel("Confirmation Number:"));
                 myPanel.add(confNoText);
                 myPanel.add(new JLabel("Your location:"));
@@ -162,6 +165,12 @@ public class MainWindow extends JFrame{
                         dlicense = reservationInfo[1];
                         fromTime = reservationInfo[2];
                         endTime = reservationInfo[3];
+                        try {
+                            DateHelper.isThisDateValid(fromTime);
+                            DateHelper.isThisDateValid(endTime);
+                        } catch (ParseException e) {
+                            displayErrorMsg(e.getMessage());
+                        }
 
                         myPanel = new JPanel();
                         myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
@@ -243,7 +252,12 @@ public class MainWindow extends JFrame{
                             cardNo = cardNoText.getText();
                             expDate = expDateText.getText();
                             username = userNameText.getText();
-
+                            try {
+                                DateHelper.isThisDateValid(fromTime);
+                                DateHelper.isThisDateValid(endTime);
+                            } catch (ParseException e) {
+                                displayErrorMsg(e.getMessage());
+                            }
 
                             boolean userExists = delegate.checkUserExists(username, dlicense);
                             if (!userExists) {
@@ -266,7 +280,160 @@ public class MainWindow extends JFrame{
             }
         });
         JButton returnVehicleBtn = new JButton("Return Vehicle");
+        returnVehicleBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                JTextField vlicenseText = new JTextField(5);
+                String vlicense;
+                JPanel myPanel = new JPanel();
+                myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                myPanel.add(new JLabel("Please enter the return vehicle's license?"));
+                myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                myPanel.add(Box.createVerticalStrut(10));
+                myPanel.add(new JLabel("Vehicle's license:"));
+                myPanel.add(vlicenseText);
+
+                int result = JOptionPane.showConfirmDialog(null, myPanel,
+                        "Please enter the return vehicle's license?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (result == JOptionPane.OK_OPTION) {
+                    vlicense = vlicenseText.getText();
+                    try {
+                        String[] receipt = delegate.returnVehicle(vlicense);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
         JButton generateReportBtn = new JButton("Generate Report");
+        generateReportBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                JPanel selectionDialog = new JPanel();
+                selectionDialog.setLayout(new BoxLayout(selectionDialog, BoxLayout.Y_AXIS));
+                JButton daily_rentals_for_all_branches = new JButton("Daily rentals for all branches");
+                JButton daily_rentals_for_a_branches = new JButton("Daily rentals for a branches");
+                JButton daily_returns_for_all_branches = new JButton("Daily returns for all branches");
+                JButton daily_returns_for_a_branches = new JButton("Daily returns for a branches");
+                daily_rentals_for_all_branches.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        JPanel myPanel = new JPanel();
+                        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                        String date;
+                        JTextField dataText = new JTextField(5);
+                        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                        myPanel.add(new JLabel("Please enter the date of the report?"));
+                        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                        myPanel.add(Box.createVerticalStrut(10));
+                        myPanel.add(new JLabel("Date:"));
+                        myPanel.add(dataText);
+                        int result = JOptionPane.showConfirmDialog(null, myPanel,
+                                "Please enter the Date?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                        if (result == JOptionPane.OK_OPTION) {
+                            date = dataText.getText();
+                            try {
+                                List<String[]> report = delegate.getRentReportForAllsBranches(date);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+                daily_rentals_for_a_branches.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        JPanel myPanel = new JPanel();
+                        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                        String date;
+                        String location;
+                        JTextField dataText = new JTextField(5);
+                        JTextField locationText = new JTextField(5);
+                        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                        myPanel.add(new JLabel("Please enter the date of the report?"));
+                        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                        myPanel.add(Box.createVerticalStrut(10));
+                        myPanel.add(new JLabel("Date:"));
+                        myPanel.add(dataText);
+                        myPanel.add(new JLabel("Location:"));
+                        myPanel.add(locationText);
+                        int result = JOptionPane.showConfirmDialog(null, myPanel,
+                                "Please enter date and location of a branch?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                        if (result == JOptionPane.OK_OPTION) {
+                            date = dataText.getText();
+                            location = locationText.getText();
+                            try {
+                                List<String[]> report = delegate.getRentReportForABranch(date, location);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+                daily_returns_for_all_branches.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        JPanel myPanel = new JPanel();
+                        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                        String date;
+                        JTextField dataText = new JTextField(5);
+                        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                        myPanel.add(new JLabel("Please enter the date of the report?"));
+                        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                        myPanel.add(Box.createVerticalStrut(10));
+                        myPanel.add(new JLabel("Date:"));
+                        myPanel.add(dataText);
+                        int result = JOptionPane.showConfirmDialog(null, myPanel,
+                                "Please enter the date of the report?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                        if (result == JOptionPane.OK_OPTION) {
+                            date = dataText.getText();
+                            try {
+                                List<String[]> report = delegate.getReturnReportForAllsBranches(date);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+                daily_returns_for_a_branches.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        JPanel myPanel = new JPanel();
+                        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                        String date;
+                        String location;
+                        JTextField dataText = new JTextField(5);
+                        JTextField locationText = new JTextField(5);
+                        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                        myPanel.add(new JLabel("Please enter the date of the report?"));
+                        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                        myPanel.add(Box.createVerticalStrut(10));
+                        myPanel.add(new JLabel("Date:"));
+                        myPanel.add(dataText);
+                        myPanel.add(new JLabel("Location:"));
+                        myPanel.add(locationText);
+                        int result = JOptionPane.showConfirmDialog(null, myPanel,
+                                "Please enter date and location of a branch?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                        if (result == JOptionPane.OK_OPTION) {
+                            date = dataText.getText();
+                            location = locationText.getText();
+                            try {
+                                List<String[]> report = delegate.getReturnReportForABranch(date, location);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+                selectionDialog.add(daily_rentals_for_all_branches);
+                selectionDialog.add(daily_rentals_for_a_branches);
+                selectionDialog.add(daily_returns_for_all_branches);
+                selectionDialog.add(daily_returns_for_a_branches);
+                JOptionPane.showConfirmDialog(null, selectionDialog,
+                        "Please Select Report Type?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+            }
+        });
 
 
         JMenuBar menuBar = new JMenuBar();
@@ -279,29 +446,8 @@ public class MainWindow extends JFrame{
         menuBar.add(generateReportBtn);
 
 
-
-        //Creating the panel at bottom and adding components
-        JPanel panel = new JPanel(); // the panel is not visible in output
-        JLabel label = new JLabel("Enter Your SQL");
-        JTextField tf = new JTextField(50); // accepts upto 10 characters
-        JButton send = new JButton("Send");
-        send.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                String text = tf.getText();
-            }
-        });
-        JButton reset = new JButton("Reset");
-        panel.add(label); // Components Added using Flow Layout
-        panel.add(label); // Components Added using Flow Layout
-        panel.add(tf);
-        panel.add(send);
-        panel.add(reset);
-
-
-
         //Adding Components to the frame.
-        this.getContentPane().add(BorderLayout.SOUTH, panel);
+//        this.getContentPane().add(BorderLayout.SOUTH, panel);
         this.getContentPane().add(BorderLayout.NORTH, menuBar);
         this.getContentPane().add(BorderLayout.CENTER, scrollPane);
         this.setVisible(true);
@@ -425,9 +571,6 @@ public class MainWindow extends JFrame{
         myPanel.add(new JLabel("End Time in YYYY-MM-DD HH24:MI format"));
         myPanel.add(endTime);
 
-//        DateFormat inputFormat = new SimpleDateFormat("YYYY-MM-DD HH24:MI");
-
-
         int result = JOptionPane.showConfirmDialog(null, myPanel,
                 "What vehicles are you looking for?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
@@ -435,10 +578,12 @@ public class MainWindow extends JFrame{
             res[1] = locationText.getText();
             res[2] = startTime.getText();
             res[3] = endTime.getText();
-            System.out.println("Car Type: " + carTypeText.getText());
-            System.out.println("Location: " + locationText.getText());
-            System.out.println("Start time: " + startTime.getText());
-            System.out.println("End time: " + endTime.getText());
+            try {
+                DateHelper.isThisDateValid(res[2]);
+                DateHelper.isThisDateValid(res[3]);
+            } catch (ParseException e) {
+                displayErrorMsg(e.getMessage());
+            }
         }
         return res;
     }
@@ -448,7 +593,6 @@ public class MainWindow extends JFrame{
         JTextField carTypeText = new JTextField(5);
         JTextField startTime = new JTextField(5);
         JTextField endTime = new JTextField(5);
-
 
         JPanel myPanel = new JPanel();
         myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
@@ -466,6 +610,12 @@ public class MainWindow extends JFrame{
             res[0] = carTypeText.getText();
             res[1] = startTime.getText();
             res[2] = endTime.getText();
+            try {
+                DateHelper.isThisDateValid(res[1]);
+                DateHelper.isThisDateValid(res[2]);
+            } catch (ParseException e) {
+                displayErrorMsg(e.getMessage());
+            }
         }
         return res;
     }
