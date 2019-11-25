@@ -44,36 +44,162 @@ public class DatabaseConnectionHandler {
 		}
 	}
 
-	public void rentVehicle() throws SQLException{
-
-	};
-	public void returnVehicle(String vliense) throws SQLException{
+	// the following methods are SQL operations used for our projects
+	public String executeSelect(String sql) {
+		String res = new String();
 		try {
-			PreparedStatement stmt = connection.prepareStatement("SELECT fromDateTime,odometer,confNo,vtname,feature,wrate,drate,hrate,krate,wirate,dirate,hirate\n" +
-					"FROM Vehicles V, Rentals R, VehicleTypes T,\n" +
-					"Where V.status = 'rent' AND V.dlicense = R.vlicense AND V.dlicense = ? AND V.vtname = T.vtname;");
-			ResultSet rs = stmt.executeQuery();
-			Integer odometer = null;
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
-				odometer = rs.getInt("odometer");
+				res.concat(rs.getString("TABLE_NAME"));
 			}
-			if (odometer == null) {
-				throw new SQLException("odometer reading is wrong");
-			}
-
-			PreparedStatement prepState = connection.prepareStatement(
-					"Update Vehicles\n" +
-							"SET status ='avaialble', odometer = ?\n" +
-							"Where vlicense =?;");
-
-			prepState.setInt(1, odometer);
-			prepState.setString(2, vliense);
-			prepState.executeUpdate();
-			connection.commit();
-
 		} catch (SQLException e) {
-			throw e;
+			res = e.getMessage();
+			System.out.println(EXCEPTION_TAG + " " + res);
+			return res;
 		}
+		return res;
+	}
+
+	public List<String[]> rentVehicle(String vlicense, String dlicense, String fromTime, String endTime,String odometer, String cardName,String cardNo,String ExpDate, boolean hasReservation, String confoNo) throws SQLException{  
+		List<String[]> res = new ArrayList<>();
+		String[] colName = {"confoNo", "date of reservation", "vtname", "location", "endTime"};
+		res.add(colName); 		
+		try {
+			connection.setAutoCommit(false); // atomic transaction		
+			// Cheking if the vehicle to rent is available		
+			String check = "SELECT COUNT(*) AS total\n" + 
+					"FROM Vehicles\n" + 
+					"WHERE vlicense = ? AND status = 'available'";
+			int count = 0;
+			PreparedStatement prepCheck;
+			prepCheck= connection.prepareStatement(check);
+			prepCheck.setString(1, vlicense);
+			ResultSet cr = prepCheck.executeQuery();
+			while(cr.next()) {
+			count = cr.getInt("total");		
+			}
+			if(count==0) {
+				throw new SQLException("The car is already rented.");
+			}
+			
+			// get the vehicle's type name
+			String vtname = null;
+			String location =null;
+			String getDetails = "SELECT vtname AS name,location AS loc\n" + 
+					"FROM Vehicles\n" + 
+					"WHERE vlicense = ?";
+			
+			PreparedStatement prepGetName;
+			prepGetName= connection.prepareStatement(getDetails);
+			prepGetName.setString(1, vlicense);
+			ResultSet nameResult = prepGetName.executeQuery();
+			
+			while(nameResult.next()) {
+			 vtname = nameResult.getString("name");	
+			 location = nameResult.getString("loc");
+			}
+			
+			int actualConfo = -5;
+			
+			// case where a reservation was made
+			if(hasReservation) {
+				actualConfo = Integer.parseInt(confoNo);
+			}
+			// case where a reservation were not made
+			else {	
+				String getConfo = "select SEQ_CONFNO.nextval from DUAL";
+				PreparedStatement ps = connection.prepareStatement(getConfo);
+				ResultSet number = ps.executeQuery();
+				if(number.next()) {
+					actualConfo = number.getInt(1);
+					PreparedStatement newConfo = connection.prepareStatement(
+							"INSERT INTO Reservations\n" +
+							   "VALUES(?, ?, ?, TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'))");
+					newConfo.setInt(1, actualConfo);
+					newConfo.setString(2, vtname);
+					newConfo.setString(3, dlicense);
+					newConfo.setString(4, fromTime);
+					newConfo.setString(5, endTime);
+					newConfo.executeUpdate();
+				}
+			}
+				
+			// Generate next rentalId
+				int rentalId = -5;
+				String getRentalId = "select SEQ_RENTALID.nextval from DUAL";
+				PreparedStatement newRentalId = connection.prepareStatement(getRentalId);
+				ResultSet rentalResult = newRentalId.executeQuery();
+				if(rentalResult.next()) {
+					rentalId = rentalResult.getInt(1);
+				}
+				
+				String updateRental = "INSERT INTO Reservations\n" +
+						   "VALUES(?,?,?,?,?,?,?,?,?,?)";
+				PreparedStatement rental = connection.prepareStatement(updateRental);
+				rental.setInt(1,rentalId);
+				rental.setString(2,vlicense);
+				rental.setString(3,dlicense);
+				rental.setString(4,fromTime);
+				rental.setString(5,endTime);
+				rental.setInt(6,Integer.parseInt(odometer));
+				rental.setString(7,cardName);
+				rental.setString(8,cardNo);
+				rental.setString(9,ExpDate);
+				rental.setInt(10,actualConfo);
+				
+				String updateVehicle = "Update Vehicles\n" + 
+						"Set status='rented'\n" + 
+						"WHERE vlicense = ?";
+				PreparedStatement prepState;
+				prepState = connection.prepareStatement(updateVehicle);
+				prepState.setString(1, vlicense);
+				prepState.executeUpdate();
+				connection.commit();
+				
+				String[] row = new String[colName.length];
+				row[0] = String.valueOf(confoNo);
+				row[1] = fromTime;
+				row[2] = vtname;
+				row[3] = location;
+				row[4] = endTime;
+				res.add(row);	
+				
+		} catch (Exception e) {
+			connection.rollback();
+			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+		}
+			
+		return res;
+		};
+	
+	public List<String[]> getReservationInfo(String confoNo) throws SQLException{
+		List<String[]> res = new ArrayList<>();
+		String[] colName = {"cartype", "dlicense", "fromtime", "totime"};
+		res.add(colName);
+		try {
+			String sql = "SELECT cartype, dlicense, fromDateTime, toDateTime as Info\n" + 
+					"FROM Reservations R\n" + 
+					"WHERE R.confNo = ?";
+			PreparedStatement prepState;
+			prepState = connection.prepareStatement(sql);
+			prepState.setString(1, confoNo);
+			ResultSet rs = prepState.executeQuery();
+			while (rs.next()) {
+				String[] row = new String[colName.length];
+				row[0] = rs.getString("cartype");
+				row[1] = rs.getString("dlicense");
+				row[2] = rs.getString("fromDateTime");
+				row[3] = rs.getString("toDateTime");
+				res.add(row);
+			}
+		} catch (Exception e) {
+			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+		}
+		return res;
+		}
+	
+	public void returnVehicle() {
 
 	};
 	public void generateReport() {
@@ -87,6 +213,7 @@ public class DatabaseConnectionHandler {
 //		timeEnd = "2019-12-18 17:45";
 		String sql = "SELECT * FROM Vehicles WHERE status = 'available'";
 		int count = 0;
+		
 		try {
 			PreparedStatement prepState;
 			if (!timeStart.equals("") && !timeEnd.equals("")) {
@@ -120,6 +247,8 @@ public class DatabaseConnectionHandler {
 					sql += " AND LOCATION = '" + location + "\'";
 				}
 				sql = "SELECT COUNT(*) AS total FROM (" + sql + ")";
+				
+			
 				prepState = connection.prepareStatement(sql);
 			}
 
@@ -276,28 +405,6 @@ public class DatabaseConnectionHandler {
 		return res;
 	}
 
-
-	public List<String[]> getRentReportForAllsBranches(String date) throws SQLException{
-		String[] colName = {"RID", "RETURNDATETIME", "ODOMETER", "FULLTANK"};
-		List<String[]> res = new ArrayList<>();
-		res.add(colName);
-
-		try {
-			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT COUNT(*)\n" +
-					"FROM Rentals R \n" +
-					"WHERE trunc(R.fromDateTime) = to_date('2019-01-01', 'YYYY-MM-DD') AND V.vlicense = R.vlicense;");
-			while (rs.next()) {
-				String[] row = new String[colName.length];
-				row[0] = rs.getString("TABLE_NAME");
-				res.add(row);
-			}
-		} catch (SQLException e) {
-			rollbackConnection();
-			throw e;
-		}
-		return res;
-	}
 //	public void insertIntoTable(String table, ) {
 //
 //	}
