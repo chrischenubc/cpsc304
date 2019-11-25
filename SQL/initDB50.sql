@@ -19,6 +19,8 @@ BEGIN
     EXECUTE IMMEDIATE 'DROP TABLE Rentals CASCADE CONSTRAINTS';
     EXECUTE IMMEDIATE 'DROP TABLE Returns CASCADE CONSTRAINTS';
     EXECUTE IMMEDIATE 'DROP SEQUENCE seq_confNo';
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_rentalId';
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_returnId';
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE != -942 THEN
@@ -165,6 +167,9 @@ INSERT INTO Branches VALUES('221 Thompson St', 'New York');
 INSERT INTO Branches VALUES('1601 3rd Ave', 'Seattle');
 INSERT INTO Branches VALUES('9051 Beckwith Rd', 'Richmond');
 INSERT INTO Branches VALUES('5249 Regent St', 'Burnaby');
+INSERT INTO Branches VALUES('3090 Westwood St', 'Port Coquitlam');
+INSERT INTO Branches VALUES ('1321 3rd Ave', 'New Westminster');
+INSERT INTO Branches VALUES('751 Marine Dr', 'North Vancouver');
 
 --vtname, features, wrate, drate, hrate, krate, wirate, dirate, hirate
 INSERT INTO VehicleTypes VALUES('Economy', 'hourly', 181.99, 26.04, NULL, 0.20, 47.42, NULL, NULL);
@@ -178,19 +183,36 @@ INSERT INTO VehicleTypes VALUES('Truck', 'weekly', 331.99, 47.50, NULL, NULL, 67
 --vlicense, make, model, year, color, odometer, status, vtname, location, city
 INSERT INTO Vehicles VALUES('CA762X', 'Chevrolet', 'Spark', 2018, 'White', 50765, 'available', 'Economy', '5249 Regent St', 'Burnaby');
 INSERT INTO Vehicles VALUES('866MAB', 'Nissan', 'Micra', 2018, 'White', 29338, 'available', 'Economy', '180 W Georgia St', 'Vancouver');
+INSERT INTO Vehicles VALUES('3IV5PO', 'Nissan', 'Micra', 2017, 'White', 68471, 'available', 'Economy', '221 Thompson St', 'New York');
+INSERT INTO Vehicles VALUES('8QP59I', 'MINI', 'Cooper', 2009, 'Black', 64004, 'available', 'Economy', '221 Thompson St', 'New York');
 INSERT INTO Vehicles VALUES('EF084D', 'Hyundai', 'Accent', 2017, 'White', 52692, 'rented', 'Compact', '1250 Granville St', 'Vancouver');
 INSERT INTO Vehicles VALUES('62629C', 'Nissan', 'Versa Note', 2009, 'Blue', 168638, 'maintenance', 'Compact', '5249 Regent St', 'Burnaby');
 INSERT INTO Vehicles VALUES('CS015A', 'Toyota', 'Yaris', 2018, 'Red', 52586, 'available', 'Compact', '9051 Beckwith Rd', 'Richmond');
 INSERT INTO Vehicles VALUES('DE310T', 'Hyundai', 'Elantra', 2018, 'Red', 112, 'available', 'Mid-size', '221 Thompson St', 'New York');
+INSERT INTO Vehicles VALUES('R1AV04', 'Hyundai', 'Elantra', 2018, 'Silver', 4561, 'available', 'Mid-size', '1321 3rd Ave', 'New Westminster');
 INSERT INTO Vehicles VALUES('991MKS', 'Toyota', 'Corolla', 2015, 'Red', 82924, 'maintenance', 'Mid-size', '5249 Regent St', 'Burnaby');
 INSERT INTO Vehicles VALUES('Y28613', 'Volkswagen', 'Jetta', 2016, 'Blue', 37467, 'available', 'Standard', '221 Thompson St', 'New York');
+INSERT INTO Vehicles VALUES('A3E3X7', 'Kia', 'Soul', 2019, 'White', 40673, 'available', 'Standard', '180 W Georgia St', 'Vancouver');
+INSERT INTO Vehicles VALUES('Q8N5DZ', 'Kia', 'Soul', 2019, 'Grey', 45386, 'available', 'Standard', '1250 Granville St', 'Vancouver');
 INSERT INTO Vehicles VALUES('ML6469', 'Honda', 'Civic', 2017, 'Grey', 12811, 'rented', 'Standard', '1601 3rd Ave', 'Seattle');
+INSERT INTO Vehicles VALUES('1HA7IT', 'Lincoln', 'Continental', 2017, 'White', 40687, 'available', 'Full-size', '1601 3rd Ave', 'Seattle');
 INSERT INTO Vehicles VALUES('BMO34A', 'Chevrolet', 'Impala', 2013, 'White', 63867, 'available', 'Full-size', '1601 3rd Ave', 'Seattle');
+INSERT INTO Vehicles VALUES('09CCU1', 'Hyundai', 'Sonata', 2018, 'Silver', 2000, 'available', 'Full-size', '751 Marine Dr', 'North Vancouver');
 INSERT INTO Vehicles VALUES('XNK656', 'Chevrolet', 'Malibu', 2018, 'Red', 38085, 'rented', 'Full-size', '221 Thompson St', 'New York');
 INSERT INTO Vehicles VALUES('241EKA', 'Nissan', 'Qashqai', 2015, 'White', 71611, 'rented', 'SUV', '10376 King George Blvd', 'Surrey');
+INSERT INTO Vehicles VALUES('FT65HX', 'Toyota', 'FJ Cruiser', 2007, 'Silver', 231894, 'available', 'SUV', '751 Marine Dr', 'North Vancouver');
 INSERT INTO Vehicles VALUES('896REN', 'Nissan', 'Rogue', 2019, 'White', 278, 'available', 'SUV', '1250 Granville St', 'Vancouver');
+INSERT INTO Vehicles VALUES('837UVE', 'Nissan', 'Rogue', 2017, 'White', 243, 'available', 'SUV', '1250 Granville St', 'Vancouver');
+INSERT INTO Vehicles VALUES('56KZNS', 'Ford', 'EcoSport', 2018, 'White', 5499, 'available', 'SUV', '1601 3rd Ave', 'Seattle');
 INSERT INTO Vehicles VALUES('861AJP', 'Jeep', 'Grand Cherokee', 2017, 'White', 55281, 'available', 'SUV', '9051 Beckwith Rd', 'Richmond');
+INSERT INTO Vehicles VALUES('CMV5RB', 'Lincoln', 'MKC', 2017, 'Brown', 58767, 'available', 'SUV', '9051 Beckwith Rd', 'Richmond');
 INSERT INTO Vehicles VALUES('329RBL', 'Ford', 'F150 Super Crew', 2016, 'Black', 76461, 'rented', 'Truck', '10376 King George Blvd', 'Surrey');
+INSERT INTO Vehicles VALUES('OKYZ6T', 'Nissan', 'Titan', 2018, 'White', 42, 'available', 'Truck', '3090 Westwood St', 'Port Coquitlam');
+INSERT INTO Vehicles VALUES('DXR7LD', 'Toyota', 'Tacoma', 2017, 'White', 23060, 'available', 'Truck', '3090 Westwood St', 'Port Coquitlam');
+INSERT INTO Vehicles VALUES('9JX1NV', 'Ford', 'F-150', 2017, 'Red', 37800, 'available', 'Truck', '1321 3rd Ave', 'New Westminster');
+INSERT INTO Vehicles VALUES('N0C6RY', 'Volkswagen', 'New Beetle', 2003, 'Black', 197500, 'maintenance', 'Compact', '180 W Georgia St', 'Vancouver');
+INSERT INTO Vehicles VALUES('0MB5OX', 'Chrysler', 'Neon', 2002, 'Blue', 118128, 'maintenance', 'Compact', '1321 3rd Ave', 'New Westminster');
+INSERT INTO Vehicles VALUES('LGH8N7', 'Hyundai', 'Sonata', 2012, 'Grey', 141260, 'rented', 'Full-size', '751 Marine Dr', 'North Vancouver');
 
 --cellphone, name, address, dlicense
 INSERT INTO Customers VALUES('6136624852', 'Jose L Kappel', '2202 Pitt St, Cornwall, ON K6J3R2', 'NHL12506717');
