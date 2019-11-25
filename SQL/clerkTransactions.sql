@@ -30,7 +30,7 @@ Where vlicense = 'EF084D';
 
 -- Rent a car given the vlicense and a confirmation number(e.g. 000000001)
 INSERT INTO Rentals
-VALUES(seq_rentalId.nextval,'896REN',TO_TIMESTAMP('2019-12-15 17:45', 'YYYY-MM-DD HH24:MI'),TO_TIMESTAMP('2019-12-18 17:45', 'YYYY-MM-DD HH24:MI'),33443,'MasterCard',0001223212323,TO_DATE('2023-07', 'YYYY-MM'),000000004);
+VALUES(seq_rentalId.nextval,'896REN','NHL12506717',TO_TIMESTAMP('2019-12-15 17:45', 'YYYY-MM-DD HH24:MI'),TO_TIMESTAMP('2019-12-18 17:45', 'YYYY-MM-DD HH24:MI'),33443,'MasterCard',0001223212323,TO_DATE('2023-07', 'YYYY-MM'),000000001);
 
 -- Update the car status
 Update Vehicles
@@ -44,8 +44,8 @@ FROM Vehicles
 Where vlicense='896REN' AND status ='rented';
 
 -- Fetch the necessary details(not including the calculation) for the customer after returning a car
-SELECT fromDateTime,odometer,confNo,vtname,feature,wrate,drate,hrate,krate,wirate,dirate,hirate
-FROM Vehicles V, Rentals R, VehicleTypes T,
+SELECT R.fromDateTime,V.odometer,R.confNo,V.vtname,T.features,T.wrate,T.drate,T.hrate,T.krate,T.wirate,T.dirate,T.hirate
+FROM Vehicles V, Rentals R, VehicleTypes T
 Where V.status = 'rented' AND V.vlicense = R.vlicense AND V.vlicense = '896REN' AND V.vtname = T.vtname;
 
 -- Return a car and update the car's status and odometer
