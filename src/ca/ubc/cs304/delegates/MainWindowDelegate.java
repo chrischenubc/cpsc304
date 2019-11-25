@@ -10,7 +10,7 @@ public interface MainWindowDelegate {
     public List<String[]> viewAvaiableVehicles(String type, String location, String timeStart, String timeEnd);
     public int findNumOfAvailableVehicles(String type, String location, String timeStart, String timeEnd);
     public List<String[]> rentVehicle(String vlicense, String dlicense, String fromTime, String endTime, String odometer, String cardName, String cardNo, String expDate, boolean hasReservation, String confNo) throws SQLException;
-    public String[] returnVehicle(String vlicense, String returnTime, String fullTank) throws SQLException, ParseException;
+    public List<String[]> returnVehicle(String vlicense, String returnTime, String fullTank) throws SQLException, ParseException;
     public void generateReport();
     public String[] getReservationInfo(String confNo);
     public boolean checkUserExists(String username, String cellphone) throws SQLException;

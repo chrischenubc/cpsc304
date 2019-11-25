@@ -51,11 +51,14 @@ public class DatabaseConnectionHandler {
 	public void rentVehicle() throws SQLException{
 
 	};
-	public void returnVehicle(String vliense, String returnTime, String fullTank) throws SQLException, ParseException {
+	public List<String[]> returnVehicle(String vliense, String returnTime, String fullTank) throws SQLException, ParseException {
+		String sql;
 		try {
-			PreparedStatement stmt = connection.prepareStatement("SELECT fromDateTime,odometer,confNo,vtname, FEATURES,wrate,drate,hrate,krate,wirate,dirate,hirate, RID\n" +
+			 sql = "SELECT R.fromDateTime,V.odometer,R.confNo,V.vtname,T.features,T.wrate,T.drate,T.hrate,T.krate,T.wirate,T.dirate,T.hirate, RID\n" +
 					"FROM Vehicles V, Rentals R, VehicleTypes T\n" +
-					"WHERE V.status = 'rent' AND V.vlicense = R.vlicense AND V.vlicense = 'R20934493' AND V.vtname = T.vtname;");
+					"Where V.status = 'rented' AND V.vlicense = R.vlicense AND V.vlicense = ? AND V.vtname = T.vtname";
+			PreparedStatement stmt = connection.prepareStatement(sql);
+			stmt.setString(1, vliense);
 			ResultSet rs = stmt.executeQuery();
 			Integer odometer = null;
 			String feature = new String();
@@ -92,20 +95,36 @@ public class DatabaseConnectionHandler {
 			PreparedStatement prepState = connection.prepareStatement(
 					"Update Vehicles\n" +
 							"SET status ='avaialble', odometer = ?\n" +
-							"Where vlicense =?;");
+							"Where vlicense =?");
 
 			prepState.setInt(1, odometer);
 			prepState.setString(2, vliense);
 			prepState.executeUpdate();
 			connection.commit();
 
+//			prepState = connection.prepareStatement(
+//					"DELETE FROM RENTALS WHERE RID = ?");
+//
+//			prepState.setInt(1, rID);
+//			prepState.executeUpdate();
+//			connection.commit();
+
 			prepState = connection.prepareStatement("INSERT INTO Returns\n" +
-					"VALUES(?,TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'),?,?,?);");
+					"VALUES(?,TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'),?,?,?)");
 			prepState.setInt(1, rID);
 			prepState.setString(2, returnTime);
 			prepState.setInt(3, odometer);
 			prepState.setString(4, fullTank);
 			prepState.setDouble(5, values);
+			prepState.executeUpdate();
+			connection.commit();
+
+			List<String[]> res = new ArrayList<>();
+			String[] col = {"Reservation number", "Date of Return", "Total Expense"};
+			res.add(col);
+			String[] row = new String[]{Integer.toString(rID), returnTime, Double.toString(values)};
+			res.add(row);
+			return res;
 		} catch (SQLException e) {
 			throw e;
 		} catch (ParseException e) {

@@ -111,9 +111,8 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
     }
 
     @Override
-    public String[] returnVehicle(String vlicense, String returnTime, String fullTank) throws SQLException, ParseException {
-       dbHandler.returnVehicle(vlicense, returnTime, fullTank);
-       return null;
+    public List<String[]> returnVehicle(String vlicense, String returnTime, String fullTank) throws SQLException, ParseException {
+       return dbHandler.returnVehicle(vlicense, returnTime, fullTank);
     }
 
     @Override

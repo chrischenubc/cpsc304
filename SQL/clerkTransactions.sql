@@ -46,7 +46,7 @@ Where vlicense='896REN' AND status ='rented';
 -- Fetch the necessary details(not including the calculation) for the customer after returning a car
 SELECT R.fromDateTime,V.odometer,R.confNo,V.vtname,T.features,T.wrate,T.drate,T.hrate,T.krate,T.wirate,T.dirate,T.hirate
 FROM Vehicles V, Rentals R, VehicleTypes T
-Where V.status = 'rented' AND V.vlicense = R.vlicense AND V.vlicense = '896REN' AND V.vtname = T.vtname;
+Where V.status = 'rented' AND V.vlicense = R.vlicense AND V.vlicense = '329RBL' AND V.vtname = T.vtname;
 
 -- Return a car and update the car's status and odometer
 Update Vehicles
@@ -56,6 +56,9 @@ Where vlicense ='896REN';
 -- Return a car and Generating a return tuble given a rental id(e.g 000000001), a odometer reading(123321122),fulltank(1) and value (12222.34)
 INSERT INTO Returns
 VALUES(000000001,TO_TIMESTAMP('2019-12-18 17:45', 'YYYY-MM-DD HH24:MI'),123321122,1,12222.34);
+
+--Return a car and delete the entry in the Rentals
+DELETE FROM RENTALS WHERE RID = 10;
 
 -- Daily rental report for all branches
 

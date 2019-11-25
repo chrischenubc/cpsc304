@@ -304,7 +304,8 @@ public class MainWindow extends JFrame{
                     fulltank = fullTankText.getText();
 
                     try {
-                        String[] receipt = delegate.returnVehicle(vlicense, returnTime, fulltank);
+                        List<String[]> receipt = delegate.returnVehicle(vlicense, returnTime, fulltank);
+                        displayResult(receipt, scrollPane);
                     } catch (SQLException | ParseException e) {
                         e.printStackTrace();
                     }
@@ -584,12 +585,6 @@ public class MainWindow extends JFrame{
             res[1] = locationText.getText();
             res[2] = startTime.getText();
             res[3] = endTime.getText();
-            try {
-                DateHelper.isThisDateValid(res[2]);
-                DateHelper.isThisDateValid(res[3]);
-            } catch (ParseException e) {
-                displayErrorMsg(e.getMessage());
-            }
         }
         return res;
     }
@@ -617,8 +612,8 @@ public class MainWindow extends JFrame{
             res[1] = startTime.getText();
             res[2] = endTime.getText();
             try {
-                DateHelper.isThisDateValid(res[1]);
                 DateHelper.isThisDateValid(res[2]);
+                DateHelper.isThisDateValid(res[3]);
             } catch (ParseException e) {
                 displayErrorMsg(e.getMessage());
             }
