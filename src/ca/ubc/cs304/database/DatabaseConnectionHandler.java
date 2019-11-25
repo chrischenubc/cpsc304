@@ -62,9 +62,61 @@ public class DatabaseConnectionHandler {
 	}
 
 
-	public void rentVehicle() {
-
+	public List<String[]> rentVehicle(String vlicense, String dlicense, String fromTime, String endTime,String odometer) throws SQLException{
+		List<String[]> res = new ArrayList<>();
+		String[] colName = {"confoNo", "date of reservation", "vtname", "location", "duration"};
+		res.add(colName);   
+		
+		try {
+			String sql = "SELECT cartype, dlicense, fromDateTime, toDateTime as Info\n" + 
+					"FROM Reservations R\n" + 
+					"WHERE R.confNo = ?";
+			PreparedStatement prepState;
+			prepState = connection.prepareStatement(sql);
+			prepState.setString(1, confoNo);
+			ResultSet rs = prepState.executeQuery();
+			while (rs.next()) {
+				String[] row = new String[colName.length];
+				row[0] = rs.getString("cartype");
+				row[1] = rs.getString("dlicense");
+				row[2] = rs.getString("fromDateTime");
+				row[3] = rs.getString("toDateTime");
+				res.add(row);
+			}
+		} catch (Exception e) {
+			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+		}
+		return res;
+		}
+		
 	};
+	
+	public List<String[]> getReservationInfo(String confoNo) throws SQLException{
+		List<String[]> res = new ArrayList<>();
+		String[] colName = {"cartype", "dlicense", "fromtime", "totime"};
+		res.add(colName);
+		try {
+			String sql = "SELECT cartype, dlicense, fromDateTime, toDateTime as Info\n" + 
+					"FROM Reservations R\n" + 
+					"WHERE R.confNo = ?";
+			PreparedStatement prepState;
+			prepState = connection.prepareStatement(sql);
+			prepState.setString(1, confoNo);
+			ResultSet rs = prepState.executeQuery();
+			while (rs.next()) {
+				String[] row = new String[colName.length];
+				row[0] = rs.getString("cartype");
+				row[1] = rs.getString("dlicense");
+				row[2] = rs.getString("fromDateTime");
+				row[3] = rs.getString("toDateTime");
+				res.add(row);
+			}
+		} catch (Exception e) {
+			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+		}
+		return res;
+		}
+	
 	public void returnVehicle() {
 
 	};
@@ -79,6 +131,7 @@ public class DatabaseConnectionHandler {
 //		timeEnd = "2019-12-18 17:45";
 		String sql = "SELECT * FROM Vehicles WHERE status = 'available'";
 		int count = 0;
+		
 		try {
 			PreparedStatement prepState;
 			if (!timeStart.equals("") && !timeEnd.equals("")) {
@@ -112,6 +165,8 @@ public class DatabaseConnectionHandler {
 					sql += " AND LOCATION = '" + location + "\'";
 				}
 				sql = "SELECT COUNT(*) AS total FROM (" + sql + ")";
+				
+			
 				prepState = connection.prepareStatement(sql);
 			}
 
