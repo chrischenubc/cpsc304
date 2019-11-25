@@ -57,8 +57,8 @@ Where vlicense ='896REN';
 INSERT INTO Returns
 VALUES(000000001,TO_TIMESTAMP('2019-12-18 17:45', 'YYYY-MM-DD HH24:MI'),123321122,1,12222.34);
 
---Return a car and delete the entry in the Rentals
-DELETE FROM RENTALS WHERE RID = 10;
+-- --Return a car and delete the entry in the Rentals
+-- DELETE FROM RENTALS WHERE RID = 10;
 
 -- Daily rental report for all branches
 
