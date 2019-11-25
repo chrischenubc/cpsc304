@@ -122,6 +122,7 @@ public class DatabaseConnectionHandler {
 					newConfo.setString(4, fromTime);
 					newConfo.setString(5, endTime);
 					newConfo.executeUpdate();
+					connection.commit();// commit the change first otherwise sql might reject the rental insertion later on 
 				}
 			}
 				
@@ -169,7 +170,6 @@ public class DatabaseConnectionHandler {
 			connection.rollback();
 			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
 		}
-			
 		return res;
 		};
 	
