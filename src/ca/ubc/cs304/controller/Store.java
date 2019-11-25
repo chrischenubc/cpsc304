@@ -67,10 +67,6 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
         return dbHandler.viewAllTables();
     }
 
-    @Override
-    public String executeSelect(String sql) {
-        return dbHandler.executeSelect(sql);
-    }
 
     /**
      * TerminalTransactionsDelegate Implementation
@@ -116,8 +112,8 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
 
     @Override
     public String[] returnVehicle(String vlicense) throws SQLException {
-//        return dbHandler.returnVehicle(vlicense);
-        return null;
+       dbHandler.returnVehicle(vlicense);
+       return null;
     }
 
     @Override
@@ -126,9 +122,23 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
     }
 
     @Override
-    public String[] getRentReportForAllsBranches(String date) throws SQLException {
-//        return dbHandler.getRentReportForAllsBranches(date);
-        return new String[0];
+    public List<String[]> getRentReportForAllsBranches(String date) throws SQLException {
+        return dbHandler.getRentReportForAllsBranches(date);
+    }
+
+    @Override
+    public List<String[]> getRentReportForABranch(String date, String location) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public List<String[]> getReturnReportForAllsBranches(String date) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public List<String[]> getReturnReportForABranch(String date, String location) throws SQLException {
+        return null;
     }
 
     @Override

@@ -44,28 +44,36 @@ public class DatabaseConnectionHandler {
 		}
 	}
 
-	// the following methods are SQL operations used for our projects
-	public String executeSelect(String sql) {
-		String res = new String();
-		try {
-			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(sql);
-			while (rs.next()) {
-				res.concat(rs.getString("TABLE_NAME"));
-			}
-		} catch (SQLException e) {
-			res = e.getMessage();
-			System.out.println(EXCEPTION_TAG + " " + res);
-			return res;
-		}
-		return res;
-	}
-
-
-	public void rentVehicle() {
+	public void rentVehicle() throws SQLException{
 
 	};
-	public void returnVehicle() {
+	public void returnVehicle(String vliense) throws SQLException{
+		try {
+			PreparedStatement stmt = connection.prepareStatement("SELECT fromDateTime,odometer,confNo,vtname,feature,wrate,drate,hrate,krate,wirate,dirate,hirate\n" +
+					"FROM Vehicles V, Rentals R, VehicleTypes T,\n" +
+					"Where V.status = 'rent' AND V.dlicense = R.vlicense AND V.dlicense = ? AND V.vtname = T.vtname;");
+			ResultSet rs = stmt.executeQuery();
+			Integer odometer = null;
+			while (rs.next()) {
+				odometer = rs.getInt("odometer");
+			}
+			if (odometer == null) {
+				throw new SQLException("odometer reading is wrong");
+			}
+
+			PreparedStatement prepState = connection.prepareStatement(
+					"Update Vehicles\n" +
+							"SET status ='avaialble', odometer = ?\n" +
+							"Where vlicense =?;");
+
+			prepState.setInt(1, odometer);
+			prepState.setString(2, vliense);
+			prepState.executeUpdate();
+			connection.commit();
+
+		} catch (SQLException e) {
+			throw e;
+		}
 
 	};
 	public void generateReport() {
@@ -268,6 +276,28 @@ public class DatabaseConnectionHandler {
 		return res;
 	}
 
+
+	public List<String[]> getRentReportForAllsBranches(String date) throws SQLException{
+		String[] colName = {"RID", "RETURNDATETIME", "ODOMETER", "FULLTANK"};
+		List<String[]> res = new ArrayList<>();
+		res.add(colName);
+
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT COUNT(*)\n" +
+					"FROM Rentals R \n" +
+					"WHERE trunc(R.fromDateTime) = to_date('2019-01-01', 'YYYY-MM-DD') AND V.vlicense = R.vlicense;");
+			while (rs.next()) {
+				String[] row = new String[colName.length];
+				row[0] = rs.getString("TABLE_NAME");
+				res.add(row);
+			}
+		} catch (SQLException e) {
+			rollbackConnection();
+			throw e;
+		}
+		return res;
+	}
 //	public void insertIntoTable(String table, ) {
 //
 //	}
