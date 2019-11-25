@@ -203,6 +203,9 @@ INSERT INTO Vehicles VALUES('329RBL', 'Ford', 'F150 Super Crew', 2016, 'Black', 
 INSERT INTO Vehicles VALUES('OKYZ6T', 'Nissan', 'Titan', 2018, 'White', 42, 'available', 'Truck', '3090 Westwood St', 'Port Coquitlam');
 INSERT INTO Vehicles VALUES('DXR7LD', 'Toyota', 'Tacoma', 2017, 'White', 23060, 'available', 'Truck', '3090 Westwood St', 'Port Coquitlam');
 INSERT INTO Vehicles VALUES('9JX1NV', 'Ford', 'F-150', 2017, 'Red', 37800, 'available', 'Truck', '1321 3rd Ave', 'New Westminster');
+INSERT INTO Vehicles VALUES('N0C6RY', 'Volkswagen', 'New Beetle', 2003, 'Black', 197500, 'maintenance', 'Compact', '180 W Georgia St', 'Vancouver');
+INSERT INTO Vehicles VALUES('0MB5OX', 'Chrysler', 'Neon', 2002, 'Blue', 118128, 'maintenance', 'Compact', '1321 3rd Ave', 'New Westminster');
+INSERT INTO Vehicles VALUES('LGH8N7', 'Hyundai', 'Sonata', 2012, 'Grey', 141260, 'rented', 'Full-size', '751 Marine Dr', 'North Vancouver');
 
 --cellphone, name, address, dlicense
 INSERT INTO Customers VALUES('6136624852', 'Jose L Kappel', '2202 Pitt St, Cornwall, ON K6J3R2', 'NHL12506717');
