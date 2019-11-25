@@ -152,12 +152,8 @@ public class MainWindow extends JFrame{
                 if (n == JOptionPane.YES_OPTION) {
                     confNo = confNoText.getText();
                     location = locationText.getText();
-//                    String[] reservationInfo = delegate.getReservationInfo(confNo);
-//                    List<String[]> cars = delegate.viewAvaiableVehicles(reservationInfo[0], location, reservationInfo[2], reservationInfo[3]);
-                    List<String[]> cars = new ArrayList<>();
-                    cars.add(new String[0]);
-                    cars.add(new String[]{"MN8J9K"});
-                    String[] reservationInfo = {"17", "1238999", "2019-12-14 13:00", "2019-12-14 13:00"};
+                    String[] reservationInfo = delegate.getReservationInfo(confNo);
+                    List<String[]> cars = delegate.viewAvaiableVehicles(reservationInfo[0], location, reservationInfo[2], reservationInfo[3]);
                     if (cars.size() < 2) {
                         displayErrorMsg("No available cars for the given time period ");
                     } else {
@@ -197,7 +193,7 @@ public class MainWindow extends JFrame{
                             expDate = expDateText.getText();
 
                             try {
-                                List<String[]> res = delegate.rentVehicle(vlicense, dlicense, fromTime, endTime, odometerReading, cardName, cardNo, expDate);
+                                List<String[]> res = delegate.rentVehicle(vlicense, dlicense, fromTime, endTime, odometerReading, cardName, cardNo, expDate, true, confNo);
                                 displayResult(res, scrollPane);
                             } catch (SQLException e) {
                                 displayErrorMsg(e.getMessage());
@@ -265,8 +261,7 @@ public class MainWindow extends JFrame{
                                 delegate.addNewUser(userInfo[0], userInfo[1], userInfo[2], userInfo[3]);
                                 dlicense = userInfo[3];
                             }
-                            String[] reservationInfo = promptReservationInfo();
-                            List<String[]> res = delegate.rentVehicle(vlicense, dlicense, fromTime, endTime, odometerReading, cardName, cardNo, expDate);
+                            List<String[]> res = delegate.rentVehicle(vlicense, dlicense, fromTime, endTime, odometerReading, cardName, cardNo, expDate, false, "");
                             displayResult(res, scrollPane);
 
                         }
@@ -284,7 +279,11 @@ public class MainWindow extends JFrame{
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 JTextField vlicenseText = new JTextField(5);
+                JTextField returnTimeText = new JTextField(5);
+                JTextField fullTankText = new JTextField(5);
                 String vlicense;
+                String returnTime;
+                String fulltank;
                 JPanel myPanel = new JPanel();
                 myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
                 myPanel.add(new JLabel("Please enter the return vehicle's license?"));
@@ -292,14 +291,21 @@ public class MainWindow extends JFrame{
                 myPanel.add(Box.createVerticalStrut(10));
                 myPanel.add(new JLabel("Vehicle's license:"));
                 myPanel.add(vlicenseText);
+                myPanel.add(new JLabel("Return time and date:"));
+                myPanel.add(returnTimeText);
+                myPanel.add(new JLabel("Enter 1 for fulltank"));
+                myPanel.add(fullTankText);
 
                 int result = JOptionPane.showConfirmDialog(null, myPanel,
                         "Please enter the return vehicle's license?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (result == JOptionPane.OK_OPTION) {
                     vlicense = vlicenseText.getText();
+                    returnTime = returnTimeText.getText();
+                    fulltank = fullTankText.getText();
+
                     try {
-                        String[] receipt = delegate.returnVehicle(vlicense);
-                    } catch (SQLException e) {
+                        String[] receipt = delegate.returnVehicle(vlicense, returnTime, fulltank);
+                    } catch (SQLException | ParseException e) {
                         e.printStackTrace();
                     }
                 }

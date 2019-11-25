@@ -6,9 +6,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import ca.ubc.cs304.helper.DateHelper;
 import ca.ubc.cs304.model.BranchModel;
 import ca.ubc.cs304.model.VehicleType;
 
@@ -44,21 +47,70 @@ public class DatabaseConnectionHandler {
 		}
 	}
 
-	// the following methods are SQL operations used for our projects
-	public String executeSelect(String sql) {
-		String res = new String();
+
+	public void rentVehicle() throws SQLException{
+
+	};
+	public void returnVehicle(String vliense, String returnTime, String fullTank) throws SQLException, ParseException {
 		try {
-			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(sql);
+			PreparedStatement stmt = connection.prepareStatement("SELECT fromDateTime,odometer,confNo,vtname, FEATURES,wrate,drate,hrate,krate,wirate,dirate,hirate, RID\n" +
+					"FROM Vehicles V, Rentals R, VehicleTypes T\n" +
+					"WHERE V.status = 'rent' AND V.vlicense = R.vlicense AND V.vlicense = 'R20934493' AND V.vtname = T.vtname;");
+			ResultSet rs = stmt.executeQuery();
+			Integer odometer = null;
+			String feature = new String();
+			int hrate = 0;
+			int drate = 0;
+			int wrate = 0;
+			double values = 0;
+			int rID = 0;
+			String fromTime = "";
 			while (rs.next()) {
-				res.concat(rs.getString("TABLE_NAME"));
+				odometer = rs.getInt("odometer");
+				feature = rs.getString("FEATURES");
+				hrate = rs.getInt("hrate");
+				drate = rs.getInt("drate");
+				wrate = rs.getInt("wrate");
+				fromTime = rs.getString("fromDateTime");
+				rID = rs.getInt("RID");
+
 			}
+			Date fromDate = DateHelper.parse(fromTime);
+			Date returnDate = DateHelper.parse(returnTime);
+			if (odometer == null) {
+				throw new SQLException("odometer reading is wrong");
+			}
+
+			if (feature.equals("hourly")) {
+				values = (double) (hrate * DateHelper.diffInHours(returnDate, returnDate));
+			} else if (feature.equals("weekly")) {
+				values = (double) (wrate * DateHelper.diffInWeeks(returnDate, fromDate));
+			} else if (feature.equals("daily")) {
+				values = (double) (drate * DateHelper.diffInDays(returnDate, fromDate));
+			}
+
+			PreparedStatement prepState = connection.prepareStatement(
+					"Update Vehicles\n" +
+							"SET status ='avaialble', odometer = ?\n" +
+							"Where vlicense =?;");
+
+			prepState.setInt(1, odometer);
+			prepState.setString(2, vliense);
+			prepState.executeUpdate();
+			connection.commit();
+
+			prepState = connection.prepareStatement("INSERT INTO Returns\n" +
+					"VALUES(?,TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'),?,?,?);");
+			prepState.setInt(1, rID);
+			prepState.setString(2, returnTime);
+			prepState.setInt(3, odometer);
+			prepState.setString(4, fullTank);
+			prepState.setDouble(5, values);
 		} catch (SQLException e) {
-			res = e.getMessage();
-			System.out.println(EXCEPTION_TAG + " " + res);
-			return res;
+			throw e;
+		} catch (ParseException e) {
+			throw e;
 		}
-		return res;
 	}
 
 	public List<String[]> rentVehicle(String vlicense, String dlicense, String fromTime, String endTime,String odometer, String cardName,String cardNo,String ExpDate, boolean hasReservation, String confoNo) throws SQLException{  
@@ -113,6 +165,7 @@ public class DatabaseConnectionHandler {
 				ResultSet number = ps.executeQuery();
 				if(number.next()) {
 					actualConfo = number.getInt(1);
+					confoNo = Integer.toString(actualConfo);
 					PreparedStatement newConfo = connection.prepareStatement(
 							"INSERT INTO Reservations\n" +
 							   "VALUES(?, ?, ?, TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'), TO_TIMESTAMP(?, 'YYYY-MM-DD HH24:MI'))");

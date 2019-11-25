@@ -6,6 +6,7 @@ import ca.ubc.cs304.ui.LoginWindow;
 import ca.ubc.cs304.ui.MainWindow;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.List;
 
 public   class Store implements LoginWindowDelegate, MainWindowDelegate {
@@ -105,14 +106,13 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
 
 
     @Override
-    public List<String[]> rentVehicle(String vlicense, String dlicense, String fromTime, String endTime, String odometer, String cardName, String cardNo, String expDate) throws SQLException {
-//        return dbHandler.rentVehicle(vlicense, dlicense, fromTime, endTime, odometer, cardName, cardNo, expDate);
-        return null;
+    public List<String[]> rentVehicle(String vlicense, String dlicense, String fromTime, String endTime, String odometer, String cardName, String cardNo, String expDate, boolean hasReservation, String confNo) throws SQLException {
+        return dbHandler.rentVehicle(vlicense, dlicense, fromTime, endTime, odometer, cardName, cardNo, expDate, hasReservation, confNo);
     }
 
     @Override
-    public String[] returnVehicle(String vlicense) throws SQLException {
-       dbHandler.returnVehicle(vlicense);
+    public String[] returnVehicle(String vlicense, String returnTime, String fullTank) throws SQLException, ParseException {
+       dbHandler.returnVehicle(vlicense, returnTime, fullTank);
        return null;
     }
 
@@ -123,7 +123,8 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
 
     @Override
     public List<String[]> getRentReportForAllsBranches(String date) throws SQLException {
-        return dbHandler.getRentReportForAllsBranches(date);
+//        return dbHandler.getRentReportForAllsBranches(date);
+        return null;
     }
 
     @Override

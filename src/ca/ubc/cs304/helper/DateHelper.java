@@ -6,6 +6,7 @@ import java.util.Date;
 
 public class DateHelper {
     private static final String dateFromat = "yyyy-MM-dd HH:mm";
+
     public static boolean isThisDateValid(String dateToValidate) throws ParseException{
 
         if(dateToValidate == null){
@@ -25,6 +26,21 @@ public class DateHelper {
         }
 
         return true;
+    }
+
+    public static long diffInDays(Date d1, Date d2) {
+        long diff = d1.getTime() - d2.getTime();
+        return diff / (1000 * 60 * 60 * 24);
+    }
+
+    public static long diffInHours(Date d1, Date d2) {
+        long diff = d1.getTime() - d2.getTime();
+        return diff / (1000 * 60 * 60);
+    }
+
+    public static long diffInWeeks(Date d1, Date d2) {
+        long diff = d1.getTime() - d2.getTime();
+        return diff / (1000 * 60 * 60 * 24 * 7);
     }
 
     public static Date parse(String dateToValidate) throws ParseException{
