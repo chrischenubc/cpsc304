@@ -23,7 +23,6 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
 //        loginWindow.showFrame(this);
 //          this.testLogin("ora_keith520", "a11691152");
       this.testLogin("ora_ziyux", "a50664135");
-    	  
     }
 
     /**
@@ -110,8 +109,9 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
 
 
     @Override
-    public void rentVehicle() {
-
+    public List<String[]> rentVehicle(String vlicense, String dlicense, String fromTime, String endTime, String odometer, String cardName, String cardNo, String expDate) throws SQLException {
+//        return dbHandler.rentVehicle(vlicense, dlicense, fromTime, endTime, odometer, cardName, cardNo, expDate);
+        return null;
     }
 
     @Override
@@ -132,5 +132,11 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
     @Override
     public void addNewUser(String cellphone, String name, String address, String dlicense) throws SQLException {
         dbHandler.addNewUser(cellphone, name, address, dlicense);
+    }
+
+    @Override
+    public String[] getReservationInfo(String confNo) {
+//        return dbHandler.getReservationInfo(confNo);
+        return null;
     }
 }

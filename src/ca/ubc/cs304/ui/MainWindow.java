@@ -85,7 +85,7 @@ public class MainWindow extends JFrame{
                 String username;
                 String dlicense;
                 JTextField userNameText = new JTextField(5);
-                JTextField cellphoneText = new JTextField(5);
+                JTextField dlicenseText = new JTextField(5);
 
                 JPanel myPanel = new JPanel();
                 myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
@@ -93,13 +93,13 @@ public class MainWindow extends JFrame{
                 myPanel.add(userNameText);
                 myPanel.add(Box.createHorizontalStrut(15)); // a spacer
                 myPanel.add(new JLabel("Driver's license:"));
-                myPanel.add(cellphoneText);
+                myPanel.add(dlicenseText);
                 int result = JOptionPane.showConfirmDialog(null, myPanel,
                         "Please Enter your name and cellphone", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 try {
                     if (result == JOptionPane.OK_OPTION) {
                         username = userNameText.getText();
-                        dlicense = cellphoneText.getText();
+                        dlicense = dlicenseText.getText();
                         boolean userExists = delegate.checkUserExists(username, dlicense);
                         if (!userExists) {
                             String[] userInfo = promptClientInfo();
@@ -117,6 +117,154 @@ public class MainWindow extends JFrame{
             }
         });
         JButton rentVehicleBtn = new JButton("Rent Vehicle");
+        rentVehicleBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                JPanel myPanel = new JPanel();
+                myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                String confNo;
+                String location;
+                String username;
+                String vlicense;
+                String dlicense;
+                String fromTime;
+                String endTime;
+                String odometerReading;
+                String cardName;
+                String cardNo;
+                String expDate;
+                JTextField confNoText = new JTextField(5);
+                JTextField locationText = new JTextField(5);
+                myPanel.add(new JLabel("If Yes, Please Enter your confirmation number and location"));
+                myPanel.add(new JLabel("Confirmation Number:"));
+                myPanel.add(confNoText);
+                myPanel.add(new JLabel("Your location:"));
+                myPanel.add(locationText);
+                int n = JOptionPane.showConfirmDialog(
+                        null,
+                        myPanel,
+                        "Do you have any reservation?",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (n == JOptionPane.YES_OPTION) {
+                    confNo = confNoText.getText();
+                    location = locationText.getText();
+//                    String[] reservationInfo = delegate.getReservationInfo(confNo);
+//                    List<String[]> cars = delegate.viewAvaiableVehicles(reservationInfo[0], location, reservationInfo[2], reservationInfo[3]);
+                    List<String[]> cars = new ArrayList<>();
+                    cars.add(new String[0]);
+                    cars.add(new String[]{"MN8J9K"});
+                    String[] reservationInfo = {"17", "1238999", "2019-12-14 13:00", "2019-12-14 13:00"};
+                    if (cars.size() < 2) {
+                        displayErrorMsg("No available cars for the given time period ");
+                    } else {
+                        vlicense = cars.get(1)[0];
+                        dlicense = reservationInfo[1];
+                        fromTime = reservationInfo[2];
+                        endTime = reservationInfo[3];
+
+                        myPanel = new JPanel();
+                        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                        JTextField odometerText = new JTextField(5);
+                        JTextField cardNameText = new JTextField(5);
+                        JTextField cardNoText = new JTextField(5);
+                        JTextField expDateText = new JTextField(5);
+                        myPanel.add(new JLabel("Odometer readings:"));
+                        myPanel.add(odometerText);
+                        myPanel.add(new JLabel("Credit card name:"));
+                        myPanel.add(cardNameText);
+                        myPanel.add(new JLabel("Credit card number:"));
+                        myPanel.add(cardNoText);
+                        myPanel.add(new JLabel("Expiration Date"));
+                        myPanel.add(expDateText);
+                        int result = JOptionPane.showConfirmDialog(null, myPanel,
+                                "Please enter te rental information", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+                        if (result == JOptionPane.OK_OPTION) {
+                            odometerReading = odometerText.getText();
+                            cardName = cardNameText.getText();
+                            cardNo = cardNoText.getText();
+                            expDate = expDateText.getText();
+
+                            try {
+                                List<String[]> res = delegate.rentVehicle(vlicense, dlicense, fromTime, endTime, odometerReading, cardName, cardNo, expDate);
+                                displayResult(res, scrollPane);
+                            } catch (SQLException e) {
+                                displayErrorMsg(e.getMessage());
+                            }
+                        }
+                    }
+
+                } else {
+                    myPanel = new JPanel();
+                    myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                    myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                    JTextField vlicenseText = new JTextField(5);
+                    JTextField dlicenseText = new JTextField(5);
+                    JTextField startTimeText = new JTextField(5);
+                    JTextField endTimeText = new JTextField(5);
+                    JTextField odometerText = new JTextField(5);
+                    JTextField cardNameText = new JTextField(5);
+                    JTextField cardNoText = new JTextField(5);
+                    JTextField expDateText = new JTextField(5);
+                    JTextField userNameText = new JTextField(5);
+
+                    myPanel.add(new JLabel("User name:"));
+                    myPanel.add(userNameText);
+                    myPanel.add(new JLabel("Please enter the driver's license"));
+                    myPanel.add(dlicenseText);
+                    myPanel.add(new JLabel("Please enter the vehicle's license"));
+                    myPanel.add(vlicenseText);
+                    myPanel.add(new JLabel("Start Time in YYYY-MM-DD HH24:MI format"));
+                    myPanel.add(startTimeText);
+                    myPanel.add(new JLabel("End Time in YYYY-MM-DD HH24:MI format"));
+                    myPanel.add(endTimeText);
+                    myPanel.add(new JLabel("Odometer readings:"));
+                    myPanel.add(odometerText);
+                    myPanel.add(new JLabel("Credit card name:"));
+                    myPanel.add(cardNameText);
+                    myPanel.add(new JLabel("Credit card number:"));
+                    myPanel.add(cardNoText);
+                    myPanel.add(new JLabel("Expiration Date"));
+                    myPanel.add(expDateText);
+
+                    int result = JOptionPane.showConfirmDialog(null, myPanel,
+                            "Please enter te rental information", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+                    try {
+                        if (result == JOptionPane.OK_OPTION) {
+                            vlicense = vlicenseText.getText();
+                            dlicense = dlicenseText.getText();
+                            fromTime = startTimeText.getText();
+                            endTime = endTimeText.getText();
+                            odometerReading = odometerText.getText();
+                            cardName = cardNameText.getText();
+                            cardNo = cardNoText.getText();
+                            expDate = expDateText.getText();
+                            username = userNameText.getText();
+
+
+                            boolean userExists = delegate.checkUserExists(username, dlicense);
+                            if (!userExists) {
+                                String[] userInfo = promptClientInfo();
+                                delegate.addNewUser(userInfo[0], userInfo[1], userInfo[2], userInfo[3]);
+                                dlicense = userInfo[3];
+                            }
+                            String[] reservationInfo = promptReservationInfo();
+                            List<String[]> res = delegate.rentVehicle(vlicense, dlicense, fromTime, endTime, odometerReading, cardName, cardNo, expDate);
+                            displayResult(res, scrollPane);
+
+                        }
+                    } catch (SQLException e) {
+                        displayErrorMsg(e.getMessage());
+                    }
+                }
+
+
+
+            }
+        });
         JButton returnVehicleBtn = new JButton("Return Vehicle");
         JButton generateReportBtn = new JButton("Generate Report");
 
