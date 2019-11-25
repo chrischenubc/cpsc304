@@ -137,6 +137,7 @@ public class MainWindow extends JFrame{
                 JTextField confNoText = new JTextField(5);
                 JTextField locationText = new JTextField(5);
                 myPanel.add(new JLabel("If Yes, Please Enter your confirmation number and location"));
+                myPanel.add(Box.createVerticalStrut(10));
                 myPanel.add(new JLabel("Confirmation Number:"));
                 myPanel.add(confNoText);
                 myPanel.add(new JLabel("Your location:"));
@@ -266,7 +267,76 @@ public class MainWindow extends JFrame{
             }
         });
         JButton returnVehicleBtn = new JButton("Return Vehicle");
+        returnVehicleBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                JTextField vlicenseText = new JTextField(5);
+                String vlicense;
+                JPanel myPanel = new JPanel();
+                myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                myPanel.add(new JLabel("Please enter the return vehicle's license?"));
+                myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                myPanel.add(Box.createVerticalStrut(10));
+                myPanel.add(new JLabel("Vehicle's license:"));
+                myPanel.add(vlicenseText);
+
+                int result = JOptionPane.showConfirmDialog(null, myPanel,
+                        "Please enter the return vehicle's license?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (result == JOptionPane.OK_OPTION) {
+                    vlicense = vlicenseText.getText();
+                    try {
+                        String[] receipt = delegate.returnVehicle(vlicense);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
         JButton generateReportBtn = new JButton("Generate Report");
+        generateReportBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                JPanel selectionDialog = new JPanel();
+                selectionDialog.setLayout(new BoxLayout(selectionDialog, BoxLayout.Y_AXIS));
+                JButton daily_rentals_for_all_branches = new JButton("Daily rentals for all branches");
+                JButton daily_rentals_for_a_branches = new JButton("Daily rentals for a branches");
+                JButton daily_returns_for_all_branches = new JButton("Daily returns for all branches");
+                JButton daily_returns_for_a_branches = new JButton("Daily returns for a branches");
+                daily_rentals_for_all_branches.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        JPanel myPanel = new JPanel();
+                        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                        String date;
+                        JTextField dataText = new JTextField(5);
+                        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+                        myPanel.add(new JLabel("Please enter the date of the report?"));
+                        myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+                        myPanel.add(Box.createVerticalStrut(10));
+                        myPanel.add(new JLabel("Date:"));
+                        myPanel.add(dataText);
+                        int result = JOptionPane.showConfirmDialog(null, myPanel,
+                                "Please enter the return vehicle's license?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                        if (result == JOptionPane.OK_OPTION) {
+                            date = dataText.getText();
+                            try {
+                                String[] report = delegate.getRentReportForAllsBranches(date);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
+                });
+                selectionDialog.add(daily_rentals_for_all_branches);
+                selectionDialog.add(daily_rentals_for_a_branches);
+                selectionDialog.add(daily_returns_for_all_branches);
+                selectionDialog.add(daily_returns_for_a_branches);
+                JOptionPane.showConfirmDialog(null, selectionDialog,
+                        "Please Select Report Type?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+            }
+        });
 
 
         JMenuBar menuBar = new JMenuBar();
@@ -280,28 +350,28 @@ public class MainWindow extends JFrame{
 
 
 
-        //Creating the panel at bottom and adding components
-        JPanel panel = new JPanel(); // the panel is not visible in output
-        JLabel label = new JLabel("Enter Your SQL");
-        JTextField tf = new JTextField(50); // accepts upto 10 characters
-        JButton send = new JButton("Send");
-        send.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                String text = tf.getText();
-            }
-        });
-        JButton reset = new JButton("Reset");
-        panel.add(label); // Components Added using Flow Layout
-        panel.add(label); // Components Added using Flow Layout
-        panel.add(tf);
-        panel.add(send);
-        panel.add(reset);
+//        //Creating the panel at bottom and adding components
+//        JPanel panel = new JPanel(); // the panel is not visible in output
+//        JLabel label = new JLabel("Enter Your SQL");
+//        JTextField tf = new JTextField(50); // accepts upto 10 characters
+//        JButton send = new JButton("Send");
+//        send.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent actionEvent) {
+//                String text = tf.getText();
+//            }
+//        });
+//        JButton reset = new JButton("Reset");
+//        panel.add(label); // Components Added using Flow Layout
+//        panel.add(label); // Components Added using Flow Layout
+//        panel.add(tf);
+//        panel.add(send);
+//        panel.add(reset);
 
 
 
         //Adding Components to the frame.
-        this.getContentPane().add(BorderLayout.SOUTH, panel);
+//        this.getContentPane().add(BorderLayout.SOUTH, panel);
         this.getContentPane().add(BorderLayout.NORTH, menuBar);
         this.getContentPane().add(BorderLayout.CENTER, scrollPane);
         this.setVisible(true);

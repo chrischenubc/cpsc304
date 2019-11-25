@@ -115,13 +115,20 @@ public   class Store implements LoginWindowDelegate, MainWindowDelegate {
     }
 
     @Override
-    public void returnVehicle() {
-
+    public String[] returnVehicle(String vlicense) throws SQLException {
+//        return dbHandler.returnVehicle(vlicense);
+        return null;
     }
 
     @Override
     public void generateReport() {
 
+    }
+
+    @Override
+    public String[] getRentReportForAllsBranches(String date) throws SQLException {
+//        return dbHandler.getRentReportForAllsBranches(date);
+        return new String[0];
     }
 
     @Override
